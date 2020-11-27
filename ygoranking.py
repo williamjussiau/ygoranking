@@ -18,9 +18,9 @@ class GameResult(Enum):
     LOSE = 0
 
 ## Files name
-DECK_LIST_FILE = 'deck_list.csv'
-DECK_RANK_FILE = 'deck_ranking.csv'
-GAME_HIST_FILE = 'game_history.csv'
+DECK_LIST_FILE = 'test_deck_list.csv' # 'deck_list.csv'
+DECK_RANK_FILE = 'test_deck_ranking.csv' # 'deck_ranking.csv'
+GAME_HIST_FILE = 'test_game_history.csv' # 'game_history.csv'
 elo_0 = 1500
 glicko_0 = 1500
 rd_0 = 100
@@ -64,7 +64,7 @@ def add_game(deck1, deck2, score1=None, score2=None, game_date=None):
         score2 = nan
     
     # Compute new Elo & Glicko scores
-    # first retrieve them from deck_ranking, then compute and update!
+    # Retrieve deck and previous ratings
     d1 = find_deck(deck1)
     d2 = find_deck(deck2)
     elo1 = d1.elo
@@ -73,11 +73,11 @@ def add_game(deck1, deck2, score1=None, score2=None, game_date=None):
     glicko2 = d2.glicko
     rd1 = d1.rd
     rd2 = d2.rd
-    # compute_elo
+    # Compute elo
     elo1, elo2 = compute_elo(elo1,
                              elo2,
                              result=GameResult.WIN)
-    # compute_glicko
+    # Compute glicko
     gl1, gl2 = compute_glicko([glicko1, rd1],
                               [glicko2, rd2],
                               result=GameResult.WIN)
@@ -106,9 +106,9 @@ def add_game(deck1, deck2, score1=None, score2=None, game_date=None):
                     'elo2' : [elo2],
                     'glicko2' : [glicko2],
                     'rd2' : [rd2]}
-        gameDf = pd.DataFrame(data=gameData)
+        game_df = pd.DataFrame(data=gameData)
         # Append
-        gameDf.to_csv(f, header=f.tell()==0, index=False)    
+        game_df.to_csv(f, header=f.tell()==0, index=False)    
         
     with open(DECK_LIST_FILE, 'a') as f:
         all_decks = pd.read_csv(DECK_LIST_FILE)
@@ -120,16 +120,16 @@ def add_game(deck1, deck2, score1=None, score2=None, game_date=None):
         all_decks.loc[d2.n-1, 'rd'] = rd2
         all_decks.to_csv(DECK_LIST_FILE, index=False)
     
-    return gameDf
+    return game_df
 
 def find_deck(deck_name):
-    all_decks = pd.read_csv(DECK_LIST_FILE)
+    all_decks = get_all_decks()
     deck = all_decks.loc[all_decks.deck == deck_name].iloc[0]
     return deck
 
 def sort_decks():
     """Classe les decks par score (Elo ou Glicko) dans le fichier"""
-    all_decks = pd.read_csv(DECK_LIST_FILE)
+    all_decks = get_all_decks()
     all_decks_sorted=all_decks.sort_values('elo', ascending=False)
     return all_decks_sorted
 
@@ -139,13 +139,25 @@ def rank_decks():
     all_decks_sorted.to_csv(DECK_RANK_FILE, index=False)
     print('Ranking decks by score in file: ' + DECK_RANK_FILE)
     print(all_decks_sorted)
+    
+def show_all_decks():
+    all_decks = get_all_decks()
+    print('Displaying all decks...')
+    print(all_decks)
 
 def show_log():
     """Affiche l'historique des matchs dans la ligne de commande"""
-    all_games = pd.read_csv(GAME_HIST_FILE)
+    all_games = get_all_games()
     print('Showing latest games...')
     print(all_games.tail())
-    pass
+
+def get_all_decks():
+    '''Return a DataFrame with all decks'''
+    return pd.read_csv(DECK_LIST_FILE)
+
+def get_all_games():
+    '''Return a DataFrame with all games'''
+    return pd.read_csv(GAME_HIST_FILE)
 
 def compute_elo(elo1, elo2, result=GameResult.WIN):
     """Calcule le score Elo de deux decks étant donné un match
