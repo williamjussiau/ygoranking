@@ -107,7 +107,7 @@ def show_deck_stats(deck_name):
     
     # Plot win rate
     plt.figure()
-    plt.plot(win_rate.wr, label='Win rate', marker='x')
+    plt.plot(win_rate.wr, label='Win rate', marker='o')
     plt.xlabel('Number of games')
     plt.ylabel('Win rate')
     plt.hlines(0.5, 0, ngames, color='r', linestyle='--')

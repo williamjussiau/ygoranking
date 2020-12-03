@@ -18,9 +18,9 @@ class GameResult(Enum):
     LOSE = 0
 
 ## Files name
-DECK_LIST_FILE = 'test_deck_list.csv' # 'deck_list.csv'
-DECK_RANK_FILE = 'test_deck_ranking.csv' # 'deck_ranking.csv'
-GAME_HIST_FILE = 'test_game_history.csv' # 'game_history.csv'
+DECK_LIST_FILE = 'deck_list.csv' # 'test_deck_list.csv' # 'deck_list.csv'
+DECK_RANK_FILE = 'deck_ranking.csv' # 'test_deck_ranking.csv' # 'deck_ranking.csv'
+GAME_HIST_FILE = 'game_history.csv' # 'test_game_history.csv' # 'game_history.csv'
 elo_0 = 1500
 glicko_0 = 1500
 rd_0 = 100
@@ -139,6 +139,7 @@ def rank_decks():
     all_decks_sorted.to_csv(DECK_RANK_FILE, index=False)
     print('Ranking decks by score in file: ' + DECK_RANK_FILE)
     print(all_decks_sorted)
+    return all_decks_sorted
     
 def show_all_decks():
     all_decks = get_all_decks()
