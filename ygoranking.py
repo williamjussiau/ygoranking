@@ -18,9 +18,15 @@ class GameResult(Enum):
     LOSE = 0
 
 ## Files name
-DECK_LIST_FILE = 'deck_list.csv' # 'test_deck_list.csv' # 'deck_list.csv'
-DECK_RANK_FILE = 'deck_ranking.csv' # 'test_deck_ranking.csv' # 'deck_ranking.csv'
-GAME_HIST_FILE = 'game_history.csv' # 'test_game_history.csv' # 'game_history.csv'
+TEST = True
+if TEST:
+    DECK_LIST_FILE = 'test_deck_list.csv'
+    DECK_RANK_FILE = 'test_deck_ranking.csv'
+    GAME_HIST_FILE = 'test_game_history.csv'
+else:
+    DECK_LIST_FILE = 'deck_list.csv'
+    DECK_RANK_FILE = 'deck_ranking.csv'
+    GAME_HIST_FILE = 'game_history.csv'
 elo_0 = 1500
 glicko_0 = 1500
 rd_0 = 100
@@ -136,10 +142,15 @@ def sort_decks():
 def rank_decks():
     """Affiche le classement de decks dans la ligne de commande"""
     all_decks_sorted = sort_decks()
-    all_decks_sorted.to_csv(DECK_RANK_FILE, index=False)
+    log_to_file(all_decks_sorted, logfile=DECK_RANK_FILE)
     print('Ranking decks by score in file: ' + DECK_RANK_FILE)
     print(all_decks_sorted)
     return all_decks_sorted
+
+def log_to_file(df, logfile=DECK_RANK_FILE):
+    """Enregistre la DataFrame dans le fichier donné """
+    df.to_csv(logfile, index=False)
+    print('Printing to log file')
     
 def show_all_decks():
     all_decks = get_all_decks()

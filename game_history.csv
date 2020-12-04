@@ -21,3 +21,11 @@ n,deck1,deck2,score1,score2,date,elo1,glicko1,rd1,elo2,glicko2,rd2
 20,Kaiju,Amazonesse,,,30/11/2020,1548,1556,90,1462,1456,93
 21,Amazonesse,Virus,,,30/11/2020,1485,1482,90,1496,1498,93
 22,Nordique,Zombie,,,30/11/2020,1492,1492,87,1460,1453,93
+23,Defense,Kaiju,,,03/12/2020,1545,1550,87,1526,1534,87
+24,Amazonesse,MagicienSombre,,,03/12/2020,1507,1506,87,1498,1517,74
+25,MagicienSombre,Amazonesse,,,03/12/2020,1518,1531,73,1486,1487,85
+26,DieuxEgyptiens,Samourai,,,04/12/2020,1554,1562,81,1422,1417,82
+27,DieuxEgyptiens,Samourai,,,04/12/2020,1566,1572,79,1409,1406,80
+28,DragonMeule,Virus,,,04/12/2020,1500,1500,93,1475,1475,90
+29,Virus,DragonMeule,,,04/12/2020,1496,1497,87,1478,1477,90
+30,Virus,DragonMeule,,,04/12/2020,1514,1515,85,1459,1457,87

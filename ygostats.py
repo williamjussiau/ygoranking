@@ -66,7 +66,7 @@ def get_win_rate(deck_name):
     # Preprend initial win rate (default: nan)
     wr_0 = ygo.pd.DataFrame({'wr': [np.nan]})
     win_rate = ygo.pd.concat([wr_0, win_rate], ignore_index=True)
-    return win_rate
+    return win_rate, nwins, ngames
 
 def show_deck_stats(deck_name):
     """
@@ -137,12 +137,100 @@ def show_all_elo():
     for i in range(0, n_decks):
         print(i)
     
+def complete_ranking():
+    """Augmente le classement des decks avec quelques infos
+    Notamment : winrate, nombre de matchs"""
+    # Get decks
+    all_decks = ygo.sort_decks()
+    n_decks = len(all_decks)
     
+    # Init new variables
+    WINRATES = n_decks*[0]
+    NGAMES = n_decks*[0]
+    NWINS = n_decks*[0]
+    NLOSS = n_decks*[0]
     
+    # Loop on all decks
+    for i in range(0, n_decks):
+        deck = all_decks.iloc[i]
+        deck_name = deck.deck
+        wr, nwins, ngames = get_win_rate(deck_name)
+        nloss = ngames - nwins
+        wr = wr.iloc[-1,0]
+        WINRATES[i] = wr
+        NGAMES[i] = ngames
+        NWINS[i] = nwins
+        NLOSS[i] = nloss
     
+    # Append to all decks
+    all_decks['winrate'] = WINRATES
+    all_decks['ngames'] = NGAMES
+    all_decks['nwins'] = NWINS
+    all_decks['nloss'] = NLOSS
+
+    # Log new data
+    ygo.log_to_file(all_decks)
+    return all_decks
     
+def show_bars():
+    """Affiche un graphique en barres, stylé"""
+    all_decks = complete_ranking()
+    n_decks = len(all_decks)
     
+    ngames = all_decks.ngames.tolist()
+    nwins = all_decks.nwins.tolist()
+    nloss = all_decks.nloss.tolist()
+    labels = all_decks.deck.tolist()
+    scores = all_decks.elo.tolist()
+    winrates = all_decks.winrate.tolist()
+    
+    # Setup
+    fig, ax1 = plt.subplots()
+    color1 = 'tab:blue'
+    color2 = 'tab:red'
+    color3 = 'tab:green'
+    alpha = 0.75
+    
+    # ax1: number of games
+    ax1.set_ylabel('Number of games', color=color1)
+    ax1.tick_params(axis='x', labelrotation=75)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    barg = ax1.bar(labels, ngames, alpha=alpha, color=color1) 
+    barw = ax1.bar(labels, nwins, alpha=alpha, color=color2)
+
+    # ax2: win rate
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    ax2.set_ylabel('Winrate', color=color3)  # we already handled the x-label with ax1
+    ax2.tick_params(axis='y', labelcolor=color3)
+    dx = 0.02
+    ax2.set_ylim([0-dx, 1+dx])
+    ax2.plot(winrates, marker='o', linestyle='None', color=color3)
+    ax2.hlines(0.5, 
+               xmin=ax2.get_xlim()[0]+1, xmax=ax2.get_xlim()[1]-1,
+               color=color3, linestyle=':')
+    
+    # i = 0
+    # for rect in bar2:
+    #     height = rect.get_height()
+    #     plt.text(rect.get_x() + rect.get_width()/2.0, height, '%5.2f' % winrates[i], ha='center', va='bottom')
+    #     i+=1
         
+    # i = 0
+    # for rect in barg:
+    #     height = rect.get_height()
+    #     ax1.text(rect.get_x() + rect.get_width()/2.0, height, '%d' % int(scores[i]), ha='center', va='bottom')
+    #     i+=1
+
+    fig.tight_layout()
+    plt.show()
+    
+    
+    
+    
+
+
+
+
 
 
 
