@@ -18,7 +18,7 @@ class GameResult(Enum):
     LOSE = 0
 
 ## Files name
-TEST = True
+TEST = False
 if TEST:
     DECK_LIST_FILE = 'test_deck_list.csv'
     DECK_RANK_FILE = 'test_deck_ranking.csv'
@@ -166,6 +166,10 @@ def show_log():
 def get_all_decks():
     '''Return a DataFrame with all decks'''
     return pd.read_csv(DECK_LIST_FILE)
+
+def get_all_decks_ranked():
+    '''Return a DataFrame with all decks ranked'''
+    return pd.read_csv(DECK_RANK_FILE)
 
 def get_all_games():
     '''Return a DataFrame with all games'''

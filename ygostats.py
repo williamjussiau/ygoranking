@@ -8,7 +8,10 @@ Created on Tue Nov 24 22:46:11 2020
 
 import ygoranking as ygo
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from matplotlib import colors
 import numpy as np
+
 
 # Afficher les meilleurs/pires matchups d'un deck
 # Afficher une matrice des matchs comme sur l'excel
@@ -77,7 +80,7 @@ def show_deck_stats(deck_name):
     scores = get_scores(deck_name)
     ngames = len(scores) - 1
     # Win rate
-    win_rate = get_win_rate(deck_name)
+    win_rate, nwins, ngames = get_win_rate(deck_name)
 
     # Plot utilities
     xx = np.linspace(0, ngames, ngames+1)
@@ -122,6 +125,8 @@ def show_all_elo():
     C'est assez different de ce qui est fait dans show_deck_stats car on
     veut ici voir la totalite des matchs et l'evolution du score de chaque
     deck (i.e. si le deck ne joue pas, son score reste constant)
+    
+    TODO
     """
     # Retrieve decks
     all_decks = ygo.get_all_decks()
@@ -172,9 +177,9 @@ def complete_ranking():
     ygo.log_to_file(all_decks)
     return all_decks
     
-def show_bars():
+def show_bars(use_cm = False):
     """Affiche un graphique en barres, stylé"""
-    all_decks = complete_ranking()
+    all_decks = ygo.get_all_decks_ranked()
     n_decks = len(all_decks)
     
     ngames = all_decks.ngames.tolist()
@@ -186,35 +191,42 @@ def show_bars():
     
     # Setup
     fig, ax1 = plt.subplots()
-    color1 = 'tab:blue'
-    color2 = 'tab:red'
-    color3 = 'tab:green'
-    alpha = 0.75
+    cmp = ['Reds', 'Blues', 'Greens_r']
+    clr = ['tab:red', 'tab:blue', 'tab:green']
+    alpha = 0.8
+    
+    # Colormap
+    set_color = lambda data, clr: cm.get_cmap(clr)(colors.Normalize(vmin=min(data), vmax=max(data))(data))
     
     # ax1: number of games
-    ax1.set_ylabel('Number of games', color=color1)
-    ax1.tick_params(axis='x', labelrotation=75)
-    ax1.tick_params(axis='y', labelcolor=color1)
-    barg = ax1.bar(labels, ngames, alpha=alpha, color=color1) 
-    barw = ax1.bar(labels, nwins, alpha=alpha, color=color2)
+    ax1.set_ylabel('Number of games', color='k')
+    ax1.tick_params(axis='x', labelrotation=80)
+    ax1.tick_params(axis='y', labelcolor='k')
+
+    if use_cm:
+        clg = set_color(nloss, cmp[1])
+        clw = set_color(nwins, cmp[0])
+    else:
+        clg = clr[1]
+        clw = clr[0]
+        
+    barg = ax1.bar(labels, nloss, bottom=nwins,
+                   alpha=alpha, color=clg, edgecolor='k') 
+    barw = ax1.bar(labels, nwins,
+                   alpha=alpha, color=clw, edgecolor='k')
 
     # ax2: win rate
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-    ax2.set_ylabel('Winrate', color=color3)  # we already handled the x-label with ax1
-    ax2.tick_params(axis='y', labelcolor=color3)
-    dx = 0.02
+    ax2.set_ylabel('Winrate', color=clr[2])  # we already handled the x-label with ax1
+    ax2.tick_params(axis='y', labelcolor=clr[2])
+    dx = 0.03
     ax2.set_ylim([0-dx, 1+dx])
-    ax2.plot(winrates, marker='o', linestyle='None', color=color3)
+    t = [i for i in range(0,n_decks)]
+    # ax2.scatter(t, winrates, marker='o', c=t, cmap=cmp[2])
+    ax2.plot(t, winrates, linestyle=':', marker='o', color=clr[2], drawstyle='default') # drawstyle='steps-mid'
     ax2.hlines(0.5, 
                xmin=ax2.get_xlim()[0]+1, xmax=ax2.get_xlim()[1]-1,
-               color=color3, linestyle=':')
-    
-    # i = 0
-    # for rect in bar2:
-    #     height = rect.get_height()
-    #     plt.text(rect.get_x() + rect.get_width()/2.0, height, '%5.2f' % winrates[i], ha='center', va='bottom')
-    #     i+=1
-        
+               color=clr[2], linestyle='--')
     # i = 0
     # for rect in barg:
     #     height = rect.get_height()
@@ -224,8 +236,58 @@ def show_bars():
     fig.tight_layout()
     plt.show()
     
+def show_map():
+    """Affiche une matrice des matchs joués et gagnés de deck à deck..."""
+    all_decks = ygo.get_all_decks_ranked()
+    n_decks = len(all_decks)
+    labels = all_decks.deck.tolist()
+    t = [i for i in range(0, n_decks)]
+    all_games = ygo.get_all_games()
+    n_games = len(all_games)
     
+    # Initialize
+    games_map = 0 * np.eye(n_decks, dtype=int)
+    wins_map = 0 * np.eye(n_decks, dtype=int)
+    winrate_map = 0 * np.eye(n_decks)
+    # games_map = np.random.randn(n_decks, n_decks)
     
+    for i in range(0, n_games):
+        game_i = all_games.iloc[i]
+        deck1_idx = labels.index(game_i.deck1)
+        deck2_idx = labels.index(game_i.deck2)
+        wins_map[deck2_idx, deck1_idx] += 1
+        
+    games_map = wins_map + wins_map.T;    
+    games_map[games_map == 0] = -1
+    winrate_map = wins_map / games_map
+    winrate_map[games_map==-1] = -np.inf
+    np.fill_diagonal(winrate_map, 0.5)
+
+    # Setup figure
+    fig = plt.figure()
+    ax = plt.gca()
+    
+    # Colormap & show matrix
+    normalizer = colors.DivergingNorm(vcenter=0.5, vmin=0, vmax=np.max(winrate_map))
+    cax = ax.matshow(winrate_map, cmap=cm.get_cmap('RdYlGn'),
+                     norm=normalizer) # coolwarm, bwr, RdYlGn
+    
+    # vmin = np.min(games_map), vmax=np.max(games_map)
+    # Ticks
+    ax.set_xlabel('Winner')
+    ax.set_ylabel('Loser')
+    ax.set_xticks(t)
+    ax.set_yticks(t)
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(labels)
+    ax.tick_params(axis='x', labelrotation=90)
+    ax.tick_params(axis='y', labelrotation=0)
+    # ax.grid()
+    fig.colorbar(cax)
+    
+    # Show
+    fig.tight_layout()
+    plt.show()
     
 
 
