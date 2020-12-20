@@ -6,7 +6,9 @@ Created on Tue Nov 24 22:46:11 2020
 @author: william
 """
 
-import ygoranking as ygo
+import ygoranking as ygor
+import ygomanagement as ygom
+
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib import colors
@@ -21,7 +23,7 @@ def get_games(deck_name):
     """
     Extrait les matchs du deck donné
     """
-    all_games = ygo.pd.read_csv(ygo.GAME_HIST_FILE)
+    all_games = ygom.pd.read_csv(ygom.GAME_HIST_FILE)
     played_games = all_games.loc[(all_games.deck1 == deck_name) |
                                (all_games.deck2 == deck_name)]
     return played_games
@@ -33,7 +35,7 @@ def get_scores(deck_name):
     scores = {'elo': np.zeros([ngames,]),
               'glicko': np.zeros([ngames,]),
               'rd': np.zeros([ngames,])}
-    sc = ygo.pd.DataFrame(data=scores)
+    sc = ygom.pd.DataFrame(data=scores)
     for i in range(0, ngames):
         if(gm.deck1.iloc[i]==deck_name):
             # Deck has won this game
@@ -46,10 +48,10 @@ def get_scores(deck_name):
             sc.iloc[i].glicko = gm.iloc[i].glicko2
             sc.iloc[i].rd = gm.iloc[i].rd2
     # Prepend initial scores
-    initial_scores = ygo.pd.DataFrame({'elo': [ygo.elo_0],
-                                       'glicko': [ygo.glicko_0],
-                                       'rd': [ygo.rd_0]})
-    sc = ygo.pd.concat([initial_scores, sc], ignore_index=True)
+    initial_scores = ygom.pd.DataFrame({'elo': [ygom.elo_0],
+                                       'glicko': [ygom.glicko_0],
+                                       'rd': [ygom.rd_0]})
+    sc = ygom.pd.concat([initial_scores, sc], ignore_index=True)
     return sc
 
 def get_win_rate(deck_name):
@@ -58,7 +60,7 @@ def get_win_rate(deck_name):
     les matchs précédents"""
     gm = get_games(deck_name)
     ngames = len(gm)
-    win_rate = ygo.pd.DataFrame(data={'wr': np.zeros([ngames,])})
+    win_rate = ygom.pd.DataFrame(data={'wr': np.zeros([ngames,])})
     nwins = 0
     for i in range(0, ngames):
         if(gm.deck1.iloc[i]==deck_name):
@@ -67,8 +69,8 @@ def get_win_rate(deck_name):
         # Else deck has lost this game
         win_rate.iloc[i].wr = nwins / (i+1)
     # Preprend initial win rate (default: nan)
-    wr_0 = ygo.pd.DataFrame({'wr': [np.nan]})
-    win_rate = ygo.pd.concat([wr_0, win_rate], ignore_index=True)
+    wr_0 = ygom.pd.DataFrame({'wr': [np.nan]})
+    win_rate = ygom.pd.concat([wr_0, win_rate], ignore_index=True)
     return win_rate, nwins, ngames
 
 def show_deck_stats(deck_name):
@@ -100,7 +102,7 @@ def show_deck_stats(deck_name):
              np.concatenate([scores.glicko - 1.9600 * scores.rd,
                              (scores.glicko + 1.9600 * scores.rd)[::-1]]),
              alpha=0.3, label='+-2rd')
-    plt.hlines(ygo.elo_0, 0, ngames, color='r', linestyle='--')
+    plt.hlines(ygom.elo_0, 0, ngames, color='r', linestyle='--')
     plt.xlabel('Number of games')
     plt.ylabel('Score')
     plt.legend()
@@ -129,11 +131,11 @@ def show_all_elo():
     TODO
     """
     # Retrieve decks
-    all_decks = ygo.get_all_decks()
+    all_decks = ygom.get_all_decks()
     n_decks = len(all_decks)
     
     # Retrieve games
-    all_games = ygo.get_all_games()
+    all_games = ygom.get_all_games()
     n_games = len(all_games)
     
     # Make score vectors
@@ -146,7 +148,7 @@ def complete_ranking():
     """Augmente le classement des decks avec quelques infos
     Notamment : winrate, nombre de matchs"""
     # Get decks
-    all_decks = ygo.sort_decks()
+    all_decks = ygor.sort_decks()
     n_decks = len(all_decks)
     
     # Init new variables
@@ -174,12 +176,12 @@ def complete_ranking():
     all_decks['nloss'] = NLOSS
 
     # Log new data
-    ygo.log_to_file(all_decks)
+    ygom.log_to_file(all_decks)
     return all_decks
     
 def show_bars(use_cm = False):
     """Affiche un graphique en barres, stylé"""
-    all_decks = ygo.get_all_decks_ranked()
+    all_decks = ygor.get_all_decks_ranked()
     n_decks = len(all_decks)
     
     ngames = all_decks.ngames.tolist()
@@ -238,11 +240,11 @@ def show_bars(use_cm = False):
     
 def show_map():
     """Affiche une matrice des matchs joués et gagnés de deck à deck..."""
-    all_decks = ygo.get_all_decks_ranked()
+    all_decks = ygor.get_all_decks_ranked()
     n_decks = len(all_decks)
     labels = all_decks.deck.tolist()
     t = [i for i in range(0, n_decks)]
-    all_games = ygo.get_all_games()
+    all_games = ygom.get_all_games()
     n_games = len(all_games)
     
     # Initialize
@@ -255,7 +257,7 @@ def show_map():
         game_i = all_games.iloc[i]
         deck1_idx = labels.index(game_i.deck1)
         deck2_idx = labels.index(game_i.deck2)
-        wins_map[deck2_idx, deck1_idx] += 1
+        wins_map[deck1_idx, deck2_idx] += 1
         
     games_map = wins_map + wins_map.T;    
     games_map[games_map == 0] = -1
@@ -272,10 +274,14 @@ def show_map():
     cax = ax.matshow(winrate_map, cmap=cm.get_cmap('RdYlGn'),
                      norm=normalizer) # coolwarm, bwr, RdYlGn
     
+    # Grey out diagonal and decks with same owner
+    for i in range(0,n_decks):
+        ax.text(i, i, '.')
+    
     # vmin = np.min(games_map), vmax=np.max(games_map)
     # Ticks
-    ax.set_xlabel('Winner')
-    ax.set_ylabel('Loser')
+    ax.set_xlabel('Loser')
+    ax.set_ylabel('Winner')
     ax.set_xticks(t)
     ax.set_yticks(t)
     ax.set_xticklabels(labels)
@@ -289,6 +295,12 @@ def show_map():
     fig.tight_layout()
     plt.show()
     
+    
+    ###### TODO
+    # (Re)compute scores from games history --- done
+    # Delete game --- no
+    # Do not compute score when adding a game --- done
+    # Single file for ranking+stats, same for decks (names) --- no
 
 
 
