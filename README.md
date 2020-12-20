@@ -4,9 +4,11 @@ Ranking system for Yu-Gi-Oh! gaming with friends
 Available functionalities are:
   - add a new deck (no decklist shall be provided)
   - add a played game with result
-  - Elo and Glicko2 scores are computed automatically whenever a game is added
+  - compute Elo and Glicko2 scores
+  - visualize results on graphs
  
- Still to be implemented: statistics & user-interface
+Still to be implemented: neat statistics & user-interface
+So far, everything has to be done on command line (add_deck, add_game, compute_all_scores...)
 
 # Elo rating
 More details about the Elo rating system can be found here: https://en.wikipedia.org/wiki/Elo_rating_system
