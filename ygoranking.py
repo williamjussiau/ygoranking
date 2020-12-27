@@ -82,9 +82,14 @@ def compute_all_scores(sort_by='elo'):
     # Init score table
     all_scores = np.zeros((n_games, 6)) # elo1, elo2, gl1, gl2, rd1, rd2
     # Init deck table
-    all_decks_ranked = get_all_decks_ranked()
-    all_decks_ranked[['winrate', 'ngames', 'nwins', 'nloss']] = 0
-    all_decks_ranked[['elo', 'glicko', 'rd']] = elo_0, glicko_0, rd_0
+    all_decks_ranked = ygom.get_all_decks()
+    all_decks_ranked['winrate'] = 0
+    all_decks_ranked['ngames'] = 0
+    all_decks_ranked['nwins'] = 0
+    all_decks_ranked['nloss'] = 0
+    all_decks_ranked['elo'] = elo_0
+    all_decks_ranked['glicko'] = glicko_0
+    all_decks_ranked['rd'] = rd_0
     # Loop over games and update table
     for i in range(0, n_games):
         # Get game & decks

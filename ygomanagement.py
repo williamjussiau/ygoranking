@@ -27,8 +27,6 @@ if TEST:
 else:
     DECK_LIST_FILE = 'data/deck_list.csv'
     GAME_HIST_FILE = 'data/game_history.csv'
-    
-
 
 ## Functions
 def add_deck(deck_name, deck_owner, creation_date=None):
@@ -51,7 +49,7 @@ def add_deck(deck_name, deck_owner, creation_date=None):
                     'date': [creation_date]}
         deck_df = pd.DataFrame(data=deck_data)
         # Append
-        deck_df.to_csv(f, header=f.tell()==0, index=True)
+        deck_df.to_csv(f, header=f.tell()==0, index=False)
     return deck_df
     
 def add_game(deck1, deck2, game_date=None):
@@ -103,5 +101,14 @@ def get_all_decks():
 def get_all_games():
     '''Return a DataFrame with all games'''
     return pd.read_csv(GAME_HIST_FILE)
+
+def find_owner(deck_name):
+    '''Return owner of a given deck'''
+    return find_deck(deck_name).owner
+    
+    
+    
+    
+    
 
 
