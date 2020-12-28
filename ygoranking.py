@@ -28,6 +28,7 @@ def sort_decks(all_decks_ranked=None, sort_by='elo'):
     if all_decks_ranked is None:
         all_decks_ranked = get_all_decks_ranked()
     all_decks_sorted = all_decks_ranked.sort_values(sort_by, ascending=False)
+    all_decks_sorted.reset_index(drop=True, inplace=True)
     return all_decks_sorted
 
 def rank_decks():
@@ -130,10 +131,19 @@ def compute_all_scores(sort_by='elo'):
     all_decks_ranked = sort_decks(all_decks_ranked, sort_by=sort_by)
     log_to_file(all_decks_ranked, logfile=DECK_RANK_FILE)
 
-def compute_scores_from():
+def compute_scores_last():
     '''calcule les scores à partir du match i (match à partir duquel 
     les scores sont absents par exemple)'''
-    pass
+    all_games = ygom.get_all_games()
+    last_games = all_games.loc[ygom.pd.isnull(all_games.elo1)]
+    n_last = len(last_games)
+    
+    all_decks_ranked = get_all_decks_ranked()
+    for i in range(0,n_last):
+        # Get game & decks
+        game_i = last_games.iloc[i]
+        deck1 = find_deck_rating(game_i.deck1, all_decks_ranked)
+        deck2 = find_deck_rating(game_i.deck2, all_decks_ranked)
 
 
 

@@ -91,6 +91,6 @@ n,deck1,deck2,date,elo1,elo2,gl1,rd1,gl2,rd2
 90,MagicienSombre,Kawai,23/12/2020,1471.0,1493.0,1619.0,88.0,1571.0,213.0
 91,Kawai,MagicienSombre,23/12/2020,1511.0,1452.0,1677.0,183.0,1603.0,86.0
 92,MagicienSombre,Kawai,23/12/2020,1475.0,1487.0,1624.0,84.0,1591.0,163.0
-93,Guerrier,MagicienSombre,27/12/2020
-94,MagicienSombre,Guerrier,27/12/2020
-95,MagicienSombre,Guerrier,27/12/2020
+93,Guerrier,MagicienSombre,27/12/2020,1492.0,1454.0,1637.0,138.0,1606.0,82.0
+94,MagicienSombre,Guerrier,27/12/2020,1476.0,1469.0,1624.0,80.0,1588.0,129.0
+95,MagicienSombre,Guerrier,27/12/2020,1495.0,1449.0,1638.0,78.0,1552.0,121.0

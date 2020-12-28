@@ -264,12 +264,11 @@ def show_bars(use_cm = False):
     fig.tight_layout()
     plt.show()
     
-def show_map():
-    """Affiche une matrice des matchs joués et gagnés de deck à deck..."""
+def compute_map():
+    """Compute games map"""
     all_decks = ygor.get_all_decks_ranked()
     n_decks = len(all_decks)
     labels = all_decks.deck.tolist()
-    t = [i for i in range(0, n_decks)]
     all_games = ygom.get_all_games()
     n_games = len(all_games)
     
@@ -291,14 +290,30 @@ def show_map():
     winrate_map[games_map==-1] = -np.inf
     
     # Grey out decks with same owner (including diagonal)
-    game_is_impossible = np.zeros((n_decks, n_decks), dtype=bool)
+    game_is_impossible = np.zeros((n_decks, n_decks), dtype=int)
     for i in range(0, n_decks):
         owner_i = ygom.find_owner(labels[i])
-        for j in range(0, i+1):
+        for j in range(0, i):
             owner_j = ygom.find_owner(labels[j])
             if owner_i==owner_j:
-                game_is_impossible[i, j] = True
+                game_is_impossible[i, j] = 1
     game_is_impossible = game_is_impossible + game_is_impossible.T
+    np.fill_diagonal(game_is_impossible, 1)
+    return winrate_map, game_is_impossible
+
+def show_this_map(this_map=None, cmap=None):
+    """Display games map"""
+    if this_map is None:
+        winrate_map, game_is_impossible = compute_map()
+        show_winrate = True
+    else:
+        winrate_map=this_map
+        show_winrate = False
+    
+    all_decks = ygor.get_all_decks_ranked()
+    labels = all_decks.deck.tolist()
+    n_decks = len(labels)
+    t = [i for i in range(0, n_decks)]
 
     # Setup figure
     fig = plt.figure()
@@ -306,9 +321,12 @@ def show_map():
     
     # Colormap & overlay matrices (genuine games & impossible games greyed out)
     normalizer = colors.DivergingNorm(vcenter=0.5, vmin=0, vmax=np.max(winrate_map))
-    cax = ax.matshow(winrate_map, cmap=cm.get_cmap('RdYlGn'),
-                     norm=normalizer, alpha=1) # coolwarm, bwr, RdYlGn
-    ax.matshow(game_is_impossible, alpha=0.1, cmap=cm.get_cmap('binary'))
+    if cmap is None:
+        cmap = 'RdYlGn' # coolwarm, bwr, RdYlGn
+    cax = ax.matshow(winrate_map, cmap=cm.get_cmap(cmap),
+                     norm=normalizer, alpha=1) 
+    if show_winrate:
+        ax.matshow(game_is_impossible, alpha=0.1, cmap=cm.get_cmap('binary'))
 
     # Ticks
     ax.set_xlabel('Loser')
@@ -329,7 +347,7 @@ def show_map():
     # Show
     # fig.tight_layout()
     plt.show()
-    
+        
 def assign_color_per_player(decks):
     players = np.array([ygom.find_deck(dk).owner for dk in decks])
     players_base = np.array(['Pierre', 'JRE', 'William'])
@@ -374,7 +392,35 @@ def show_players():
         players = players.append(ygom.pd.DataFrame(data=[player_dict]))
     players.reset_index(drop=True, inplace=True)
     return players
+
+def suggest_new_matchup(player1=None, player2=None):
+    all_decks = ygor.get_all_decks_ranked()
+    labels = all_decks.deck.tolist()
     
+    winrate_map, game_is_impossible = compute_map()
+    game_is_possible = 1-game_is_impossible
+    matchup_undone = np.zeros(winrate_map.shape, dtype=int)
+    matchup_undone[np.isinf(winrate_map)] = 1
+    # matchup_undone[winrate_map>=0] = 0
+    
+    free_matchups = matchup_undone * game_is_possible
+    # show_this_map(free_matchups)
+    
+    if player1 is None and player2 is None:
+        filter_by_player = np.ones(winrate_map.shape, dtype=int)
+    else:
+        filter_by_player = np.zeros(winrate_map.shape, dtype=int)
+        for i in range(0, len(winrate_map)):
+            for j in range(0, i):
+                deck1_owner = ygom.find_owner(labels[i])
+                deck2_owner = ygom.find_owner(labels[j])
+                if ((deck1_owner==player1 or deck1_owner==player2) 
+                    and (deck2_owner==player1 or deck2_owner==player2)):
+                        filter_by_player[i,j] = 1
+                    
+    # show_this_map(filter_by_player)
+    new_matchup_between = free_matchups * filter_by_player
+    show_this_map(new_matchup_between)
     
     
     
