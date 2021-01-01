@@ -47,7 +47,7 @@ def log_to_file(df, logfile=DECK_RANK_FILE):
 def compute_elo(elo1, elo2):
     """Calcule le score Elo de deux decks étant donné un match
     Le joueur 1 a gagné par défaut"""
-    K = 40
+    K = 40        # TODO modifer K en fonction du nombre de matchs joués
     W = ygom.GameResult.WIN.value
     D = min(elo1 - elo2, 400)
     pD = lambda D: 1/(1+10**(-D/400))
