@@ -213,6 +213,31 @@ def show_deck_stats(deck_name, fig=None, ax=None, cycler=None):
     ax.plot(xx, win_rate.wr, label='Win rate', marker='o')
     make_date_axis(ax, ylabel='Win rate', newfig=False, title=deck_title)
     
+def show_all_decks(up_to=None):
+    """
+    Affiche la progression du score elo de tous les decks au cours du temps
+    Il faut itérer habilement sur show_deck_stats()
+    """
+    # Retrieve decks
+    all_decks = ygor.get_all_decks_ranked()
+    if up_to is None:
+        n_decks = len(all_decks)
+    else:
+        n_decks = up_to
+    
+    decks_legend = []
+    fig, ax = plt.subplots()
+    default_cycler = (plt.cycler(linestyle=['-','--',':', '-.']) 
+                      * plt.rcParams['axes.prop_cycle'])
+    ax.set_prop_cycle(default_cycler)
+    ax.grid()
+    for i in range(0, n_decks):
+        show_deck_stats(all_decks.deck[i], fig=fig, ax=ax, 
+                        cycler=default_cycler)
+        decks_legend.append(all_decks.deck[i])
+    ax.grid()
+    ax.legend(decks_legend, loc='best', fontsize='x-small', ncol=3)
+    
 def show_games_frequency(mode=None):
     all_games = ygom.get_all_games()
     dates, uidx = np.unique(all_games.date, return_index=True)
@@ -281,31 +306,6 @@ def show_games_frequency(mode=None):
                        bottom=True, top=False, labelbottom=True, labeltop=False)
         ax.set_title('Games frequency')
         fig.colorbar(cax)
-        
-def show_all_decks(up_to=None):
-    """
-    Affiche la progression du score elo de tous les decks au cours du temps
-    Il faut itérer habilement sur show_deck_stats()
-    """
-    # Retrieve decks
-    all_decks = ygor.get_all_decks_ranked()
-    if up_to is None:
-        n_decks = len(all_decks)
-    else:
-        n_decks = up_to
-    
-    decks_legend = []
-    fig, ax = plt.subplots()
-    default_cycler = (plt.cycler(linestyle=['-','--',':', '-.']) 
-                      * plt.rcParams['axes.prop_cycle'])
-    ax.set_prop_cycle(default_cycler)
-    ax.grid()
-    for i in range(0, n_decks):
-        show_deck_stats(all_decks.deck[i], fig=fig, ax=ax, 
-                        cycler=default_cycler)
-        decks_legend.append(all_decks.deck[i])
-    ax.grid()
-    ax.legend(decks_legend, loc='best', fontsize='x-small', ncol=3)
     
 def show_bars(use_cm = False):
     """Affiche un graphique en barres, stylé"""
@@ -316,7 +316,7 @@ def show_bars(use_cm = False):
     nwins = all_decks.nwins.tolist()
     nloss = all_decks.nloss.tolist()
     labels = all_decks.deck.tolist()
-    scores = all_decks.elo.tolist()
+    scores_elo = all_decks.elo.tolist()
     winrates = all_decks.winrate.tolist()
         
     # Setup
@@ -367,9 +367,69 @@ def show_bars(use_cm = False):
         height = max(ngames)*1.07
         #rect.get_height() + barw.get_children()[i].get_height()
         ax1.text(rect.get_x() + rect.get_width()/2.0, 
-                 height, '%d' % int(scores[i]), ha='center', va='bottom',
+                 height, '%d' % int(scores_elo[i]), ha='center', va='bottom',
                  fontsize=8, rotation=45, verticalalignment='center')
 
+    fig.tight_layout()
+    plt.show()
+    
+def show_scores():
+    all_decks = ygor.get_all_decks_ranked()
+    n_decks = len(all_decks)
+    
+    ngames = all_decks.ngames.tolist()
+    nwins = all_decks.nwins.tolist()
+    nloss = all_decks.nloss.tolist()
+    labels = all_decks.deck.tolist()
+    scores_elo = all_decks.elo
+    scores_glicko = all_decks.glicko
+    scores_rd = all_decks.rd
+    winrates = all_decks.winrate.tolist()
+    xx = list(range(0, n_decks))
+        
+    # Setup
+    fig, ax1 = plt.subplots()
+    cmp = ['Reds', 'Blues', 'Greens_r']
+    clr = ['tab:red', 'tab:blue', 'tab:green']
+    alpha = 0.8
+    
+    # ax1: number of games
+    ax1.set_ylabel('Elo score', color=clr[1])
+    ax1.tick_params(axis='x', labelrotation=90)
+    ax1.tick_params(axis='y', labelcolor=clr[1])
+    
+    ax1.scatter(labels, scores_elo, alpha=alpha, color=clr[1], edgecolor='k') 
+
+    clg = clr[1]
+    clw = clr[0]
+        
+    # Color labels depending on owner
+    owners_clr = assign_color_per_player(labels)
+    color_ticks_by_player(ax1, owners_clr, direction='x')
+
+    # ax2: glicko
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    ax2.set_ylabel('Glicko score', color=clr[0])  # already handled xlabel ax1
+    ax2.tick_params(axis='y', labelcolor=clr[0])
+
+    nsig = 1
+    ax2.plot(labels, scores_glicko+nsig*scores_rd, 
+             color=clr[0], linestyle='--', linewidth=0.5)
+    ax2.plot(labels, scores_glicko-nsig*scores_rd, 
+             color=clr[0], linestyle='--', linewidth=0.5)
+    ax2.scatter(labels, scores_glicko, alpha=alpha, 
+                color=clr[0], edgecolor='k')
+    ax2.fill(np.concatenate([xx, xx[::-1]]),
+             np.concatenate([scores_glicko - nsig * scores_rd,
+                            (scores_glicko + nsig * scores_rd)[::-1]]),
+                 alpha=0.2, label='+-2rd', color=clr[0])
+    
+    ax2.hlines(ygor.elo_0,
+               xmin=ax2.get_xlim()[0]+1, xmax=ax2.get_xlim()[1]-1,
+               color=clr[2], linestyle='--', linewidth=0.5)
+    
+    ax1.set_ylim([ax2.get_ylim()[0], ax2.get_ylim()[1]])
+    
     fig.tight_layout()
     plt.show()
 
@@ -385,7 +445,7 @@ def show_this_map(this_map=None, cmap=None):
     all_decks = ygor.get_all_decks_ranked()
     labels = all_decks.deck.tolist()
     n_decks = len(labels)
-    t = [i+0.5 for i in range(0, n_decks)]
+    t = [i for i in range(0, n_decks)]
 
     # Setup figure
     fig = plt.figure()
@@ -476,6 +536,7 @@ def suggest_new_matchup(player1=None, player2=None):
                     
     # show_this_map(filter_by_player)
     new_matchup_between = free_matchups * filter_by_player
+    new_matchup_between = new_matchup_between + new_matchup_between.T
     show_this_map(new_matchup_between)
     
     
