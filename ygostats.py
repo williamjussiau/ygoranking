@@ -374,23 +374,22 @@ def show_bars(use_cm = False):
     fig.tight_layout()
     plt.show()
     
-def show_scores(boxplot=False, step=True):
+def show_scores(boxplot=True, step=False):
     all_decks = ygor.get_all_decks_ranked()
     n_decks = len(all_decks)
     
-    ngames = all_decks.ngames.tolist()
-    nwins = all_decks.nwins.tolist()
-    nloss = all_decks.nloss.tolist()
+    # ngames = all_decks.ngames.tolist()
+    # nwins = all_decks.nwins.tolist()
+    # nloss = all_decks.nloss.tolist()
     labels = all_decks.deck.tolist()
     scores_elo = all_decks.elo
     scores_glicko = all_decks.glicko
     scores_rd = all_decks.rd
-    winrates = all_decks.winrate.tolist()
+    # winrates = all_decks.winrate.tolist()
     xx = list(range(0, n_decks))
         
     # Setup
     fig, ax1 = plt.subplots()
-    cmp = ['Reds', 'Blues', 'Greens_r']
     clr = ['tab:red', 'tab:blue', 'tab:green']
     alpha = 0.8
     
@@ -410,8 +409,8 @@ def show_scores(boxplot=False, step=True):
 
     # ax2: glicko
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-    ax2.set_ylabel('Glicko score', color=clr[0])  # already handled xlabel ax1
-    ax2.tick_params(axis='y', labelcolor=clr[0])
+    ax2.set_ylabel('Glicko score', color=clw)  # already handled xlabel ax1
+    ax2.tick_params(axis='y', labelcolor=clw)
     
     if boxplot:
         nsample = 10000
@@ -430,43 +429,44 @@ def show_scores(boxplot=False, step=True):
         bplt = ax2.boxplot(scores_sample,
                            labels=labels,
                            notch=False, 
-                           meanline=True, 
+                           meanline=True,
+                           positions=range(0, n_decks),
                            showmeans=True,
                            showcaps=True, 
                            showbox=True, 
                            showfliers=False, 
                            manage_ticks=False,
                            patch_artist=True, 
-                           boxprops=dict(facecolor=clr[0], color='k',
+                           boxprops=dict(facecolor=clw, color='k',
                                          alpha=0.5),
-                           capprops=dict(color=clr[0], alpha=0.5),
-                           whiskerprops=dict(color=clr[0], alpha=0.5),
-                           meanprops=dict(color=clr[0], linestyle='-')
+                           capprops=dict(color=clw, alpha=0.5),
+                           whiskerprops=dict(color=clw, alpha=0.5),
+                           meanprops=dict(color=clw, linestyle='-')
                            )
         
     else:
         nsig = 1
         ax2.scatter(labels, scores_glicko, alpha=alpha, 
-                    color=clr[0], edgecolor='k')
+                    color=clw, edgecolor='k')
         if not step:
             ax2.plot(labels, scores_glicko+nsig*scores_rd, 
-                 color=clr[0], linestyle='--', linewidth=0.5)
+                 color=clw, linestyle='--', linewidth=0.5)
             ax2.plot(labels, scores_glicko-nsig*scores_rd, 
-                   color=clr[0], linestyle='--', linewidth=0.5)
+                   color=clw, linestyle='--', linewidth=0.5)
             ax2.fill(np.concatenate([xx, xx[::-1]]),
                       np.concatenate([scores_glicko - nsig * scores_rd,
                                     (scores_glicko + nsig * scores_rd)[::-1]]),
-                          alpha=0.2, label='+-2rd', color=clr[0])
+                          alpha=0.2, label='+-2rd', color=clw)
         else:
             ax2.step(labels, scores_glicko+nsig*scores_rd, 
-                 color=clr[0], linestyle='--', linewidth=0.5,
+                 color=clw, linestyle='--', linewidth=0.5,
                  where='mid')
             ax2.step(labels, scores_glicko-nsig*scores_rd, 
-                   color=clr[0], linestyle='--', linewidth=0.5,
+                   color=clw, linestyle='--', linewidth=0.5,
                    where='mid')
             ax2.fill_between(xx, scores_glicko - nsig * scores_rd, 
                              scores_glicko + nsig * scores_rd, step='mid',
-                             alpha=0.2, label='+-2rd', color=clr[0])
+                             alpha=0.2, label='+-2rd', color=clw)
     
     ax2.hlines(ygor.elo_0,
                xmin=ax2.get_xlim()[0]+1, xmax=ax2.get_xlim()[1]-1,
