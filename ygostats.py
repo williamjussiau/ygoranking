@@ -413,10 +413,15 @@ def show_scores(boxplot=True, step=False):
     ax2.tick_params(axis='y', labelcolor=clw)
     
     if boxplot:
-        nsample = 10000
-        scores_sample = np.zeros(shape=(nsample, n_decks))
-        for i in range(0, n_decks):
-            scores_sample[:,i] = scores_glicko[i] + scores_rd[i]*np.random.randn(nsample,)
+        n_sample = 10000
+        # randvec = np.random.randn(n_sample, n_decks)
+        # scores_samples = np.zeros(shape=(n_sample, n_decks))
+        # for i in range(0, n_decks):
+        #     scores_samples[:,i] = scores_glicko[i] 
+        #     + scores_rd[i] * np.random.randn(n_sample,)
+        scores_samples = np.tile(scores_glicko, [n_sample, 1]) + \
+            np.multiply(np.tile(scores_rd, [n_sample, 1]), \
+                        np.random.randn(n_sample, n_decks))
         
         # patch_artist = patch.Patch(edgecolor=None, facecolor=None, 
         #                            color='k', 
@@ -426,7 +431,7 @@ def show_scores(boxplot=True, step=False):
         #                            fill=True, 
         #                            capstyle=None, 
         #                            joinstyle=None)
-        bplt = ax2.boxplot(scores_sample,
+        bplt = ax2.boxplot(scores_samples,
                            labels=labels,
                            notch=False, 
                            meanline=True,
