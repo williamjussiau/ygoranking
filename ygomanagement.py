@@ -30,7 +30,7 @@ else:
 
 ## Functions
 def add_deck(deck_name, deck_owner, creation_date=None):
-    """Ajoute un deck à la liste ; à utiliser avec parcimonie"""
+    """Add new deck to the database"""
     # Date today
     if creation_date is None:
         creation_date = date.today().strftime("%d/%m/%Y")
@@ -53,8 +53,7 @@ def add_deck(deck_name, deck_owner, creation_date=None):
     return deck_df
     
 def add_game(deck1, deck2, game_date=None):
-    """Ajouter un match dans la base de données
-    By default, winner=deck1"""
+    """Add new game to the database"""
     # Process input
     if game_date is None:
         game_date = date.today().strftime("%d/%m/%Y")
@@ -79,31 +78,33 @@ def add_game(deck1, deck2, game_date=None):
     return game_df
 
 def find_deck(deck_name):
+    """Return deck as dict, based on its name"""
     all_decks = get_all_decks()
     deck = all_decks.loc[all_decks.deck == deck_name].iloc[0]
     return deck
 
 def show_all_decks():
+    """Print all decks"""
     all_decks = get_all_decks()
     print('Displaying all decks...')
     print(all_decks)
 
 def show_log():
-    """Affiche l'historique des matchs dans la ligne de commande"""
+    """Print last games played"""
     all_games = get_all_games()
     print('Showing latest games...')
     print(all_games.tail())
 
 def get_all_decks():
-    '''Return a DataFrame with all decks'''
+    """"Return a DataFrame containing all decks"""
     return pd.read_csv(DECK_LIST_FILE)
 
 def get_all_games():
-    '''Return a DataFrame with all games'''
+    """Return a DataFrame containing all games"""
     return pd.read_csv(GAME_HIST_FILE)
 
 def find_owner(deck_name):
-    '''Return owner of a given deck'''
+    """Return owner of a given deck"""
     return find_deck(deck_name).owner
     
     

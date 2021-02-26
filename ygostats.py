@@ -20,14 +20,14 @@ import time
 
 ## Getters ###################################################################
 def get_games(deck_name):
-    """Extrait les matchs du deck donné"""
+    """Extract games of given deck"""
     all_games = ygom.get_all_games()
     played_games = all_games.loc[(all_games.deck1 == deck_name) |
                                (all_games.deck2 == deck_name)]
     return played_games
 
 def get_scores(deck_name):
-    """Extrait la progression (score) du deck donné"""
+    """Extract deck progression (scores, winrate)"""
     gm = get_games(deck_name)
     ngames = len(gm)
     scores = {'elo': np.zeros([ngames,]),
@@ -59,9 +59,7 @@ def get_scores(deck_name):
     return sc
 
 def get_win_rate(deck_name):
-    """Calcule le winrate-so-far d'un deck
-    C'est-à-dire pour chaque match joué, le winrate actuel en prenant tous
-    les matchs précédents"""
+    """Compute winrate of deck for each game they played (up-to)"""
     gm = get_games(deck_name)
     ngames = len(gm)
     dates = ['']*ngames
@@ -84,14 +82,17 @@ def get_win_rate(deck_name):
 
 ## Utilities #################################################################
 def convert_to_datetime(strarray):
+    """Convert string to datetime"""
     return [datetime.strptime(strdate,"%d/%m/%Y") for strdate in strarray]
 
 def convert_to_str(datearray):
+    """Convert datetime to string ---"""
     return [date.strftime("%d-%b-%y") for date in datearray]
 
 def make_date_axis(ax, ylabel, newfig=False, title=None,
                    formatter=None, locator=None,
                    dayinterval=5):
+    """Set axes with dates"""
     # Formatter and locator
     if formatter is None:
         formatter = mdates.DateFormatter("%d-%b-%y")
@@ -108,6 +109,7 @@ def make_date_axis(ax, ylabel, newfig=False, title=None,
     ax.grid()
     
 def assign_color_per_player(decks):
+    """Assign different color to each player"""
     players = np.array([ygom.find_deck(dk).owner for dk in decks])
     players_base = np.array(['Pierre', 'JRE', 'William'])
     players_baseclr = np.array(['tab:cyan','tab:green','tab:orange'])
@@ -125,6 +127,7 @@ def assign_color_per_player(decks):
     # owners_baseclr[np.argmax(owners[:,None]==owners_base[None], axis=1)]
 
 def color_ticks_by_player(ax, color_list, direction='x'):
+    """Set tick color depending on player"""
     if direction=='x':
         thoseticks = ax.get_xticklabels()
     if direction=='y':
@@ -171,10 +174,7 @@ def compute_games_map():
     
 ## Display ###################################################################
 def show_deck_stats(deck_name, fig=None, ax=None, cycler=None):  
-    """
-    Affiche les stats du deck donné
-    Les stats comprennent : WR, progression de score...?
-    """
+    """Display stats of given deck (winrate, scores)"""
     # Process input
     newfig = fig is None and ax is None
     
@@ -215,10 +215,7 @@ def show_deck_stats(deck_name, fig=None, ax=None, cycler=None):
     make_date_axis(ax, ylabel='Win rate', newfig=False, title=deck_title)
     
 def show_all_decks(up_to=None):
-    """
-    Affiche la progression du score elo de tous les decks au cours du temps
-    Il faut itérer habilement sur show_deck_stats()
-    """
+    """Show progression of all decks scores through time"""
     # Retrieve decks
     all_decks = ygor.get_all_decks_ranked()
     if up_to is None:
@@ -240,6 +237,7 @@ def show_all_decks(up_to=None):
     ax.legend(decks_legend, loc='best', fontsize='x-small', ncol=3)
     
 def show_games_frequency(mode=None):
+    """Plot Github-like table of games frequency"""
     all_games = ygom.get_all_games()
     dates, uidx = np.unique(all_games.date, return_index=True)
     uidx = np.sort(uidx)
@@ -308,8 +306,8 @@ def show_games_frequency(mode=None):
         ax.set_title('Games frequency')
         fig.colorbar(cax)
     
-def show_bars(use_cm = False):
-    """Affiche un graphique en barres, stylé"""
+def show_bars(use_cm = False, sort_by='elo'):
+    """Show stylish bar graph with scores"""
     all_decks = ygor.get_all_decks_ranked()
     n_decks = len(all_decks)
     
@@ -318,6 +316,8 @@ def show_bars(use_cm = False):
     nloss = all_decks.nloss.tolist()
     labels = all_decks.deck.tolist()
     scores_elo = all_decks.elo.tolist()
+    scores_glicko = all_decks.glicko.tolist()
+    scores_glickord = all_decks.rd.tolist()
     winrates = all_decks.winrate.tolist()
         
     # Setup
@@ -366,15 +366,20 @@ def show_bars(use_cm = False):
     # Add text on top of bar
     for i, rect in enumerate(barg):
         height = max(ngames)*1.07
+        if sort_by is 'elo':
+            txt = str(scores_elo[i])
+        else:
+            txt = str(scores_glicko[i]) #+ ' ' + '(' + str(scores_glickord[i]) + ')'
         #rect.get_height() + barw.get_children()[i].get_height()
         ax1.text(rect.get_x() + rect.get_width()/2.0, 
-                 height, '%d' % int(scores_elo[i]), ha='center', va='bottom',
+                 height, '%s' % txt, ha='center', va='bottom',
                  fontsize=8, rotation=45, verticalalignment='center')
 
     fig.tight_layout()
     plt.show()
     
 def show_scores(boxplot=True, step=False):
+    """Show scores graph with different options (box, whiskers...)"""
     all_decks = ygor.get_all_decks_ranked()
     n_decks = len(all_decks)
     
@@ -483,7 +488,7 @@ def show_scores(boxplot=True, step=False):
     plt.show()
 
 def show_this_map(this_map=None, cmap=None):
-    """Display games map"""
+    """Display given map"""
     if this_map is None:
         winrate_map, game_is_impossible = compute_games_map()
         show_winrate = True
@@ -540,8 +545,7 @@ def show_this_map(this_map=None, cmap=None):
     plt.show()
 
 def show_players():
-    """Affiche les stats d'un joueur : nombre de matchs joués,
-    gagnés/perdus, nombre de decks"""
+    """Show stats of all players: played gamed, win/loss, nr of decks"""
     all_decks = ygor.get_all_decks_ranked()
     all_players = np.unique(np.array(all_decks.owner))
     players = ygom.pd.DataFrame()

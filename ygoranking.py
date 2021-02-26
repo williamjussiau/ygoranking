@@ -24,7 +24,7 @@ glicko_0 = 1500
 rd_0 = 350
 
 def sort_decks(all_decks_ranked=None, sort_by='elo'):
-    """Classe les decks par score (Elo ou Glicko) dans le fichier"""
+    """Sort deck by score (elo or glicko)"""
     if all_decks_ranked is None:
         all_decks_ranked = get_all_decks_ranked()
     all_decks_sorted = all_decks_ranked.sort_values(sort_by, ascending=False)
@@ -32,7 +32,7 @@ def sort_decks(all_decks_ranked=None, sort_by='elo'):
     return all_decks_sorted
 
 def rank_decks():
-    """Affiche le classement de decks dans la ligne de commande"""
+    """Print deck ranking and log to file"""
     all_decks_sorted = sort_decks()
     log_to_file(all_decks_sorted, logfile=DECK_RANK_FILE)
     print('Ranking decks by score in file: ' + DECK_RANK_FILE)
@@ -40,14 +40,13 @@ def rank_decks():
     return all_decks_sorted
 
 def log_to_file(df, logfile=DECK_RANK_FILE):
-    """Enregistre la DataFrame dans le fichier donné """
+    """Log given DataFrame to base"""
     df.to_csv(logfile, index=False)
-    #print('Printing to log file')
 
-def compute_elo(elo1, elo2):
-    """Calcule le score Elo de deux decks étant donné un match
-    Le joueur 1 a gagné par défaut"""
-    K = 40        # TODO modifer K en fonction du nombre de matchs joués
+def compute_elo(elo1, elo2, K=40):
+    """Compute Elo score of decks with initiale scores elo1, elo2 
+    given deck with 1 won"""
+    # TODO : call compute_elo with K depending on nr of played games
     W = ygom.GameResult.WIN.value
     D = min(elo1 - elo2, 400)
     pD = lambda D: 1/(1+10**(-D/400))
@@ -56,7 +55,8 @@ def compute_elo(elo1, elo2):
     return int(elo1), int(elo2)
 
 def compute_glicko(glicko1, glicko2):
-    """Calcule le score Glicko de deux decks étant donné un match"""
+    """Compute Glicko2 score of decks with initiale scores glicko1, glicko2
+    given deck with 1 won"""
     gl1 = glk.Player(rating=glicko1[0], rd=glicko1[1])
     gl2 = glk.Player(rating=glicko2[0], rd=glicko2[1])
         
@@ -66,17 +66,18 @@ def compute_glicko(glicko1, glicko2):
     return gl1, gl2
 
 def get_all_decks_ranked():
-    '''Return a DataFrame with all decks ranked'''
+    """Return a DataFrame with all decks ranked"""
     return ygom.pd.read_csv(DECK_RANK_FILE)
 
 def find_deck_rating(deck_name, all_decks_ranked=None):
+    """Return deck rating given its name"""
     if all_decks_ranked is None:
         all_decks_ranked = get_all_decks_ranked()
     deck = all_decks_ranked.loc[all_decks_ranked.deck == deck_name].iloc[0]
     return deck
 
 def compute_all_scores(sort_by='elo'):
-    '''Calcule le score Elo des decks étant donnés tous les matchs'''
+    """Compute all decks scores for each game played"""
     all_games = ygom.get_all_games()
     n_games = len(all_games)
     
@@ -132,8 +133,8 @@ def compute_all_scores(sort_by='elo'):
     log_to_file(all_decks_ranked, logfile=DECK_RANK_FILE)
 
 def compute_scores_last():
-    '''calcule les scores à partir du match i (match à partir duquel 
-    les scores sont absents par exemple)'''
+    """Compute scores from given game"""
+    """TODO"""
     all_games = ygom.get_all_games()
     last_games = all_games.loc[ygom.pd.isnull(all_games.elo1)]
     n_last = len(last_games)
