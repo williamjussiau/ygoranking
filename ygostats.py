@@ -11,12 +11,12 @@ import ygomanagement as ygom
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.patches as patch
+#import matplotlib.patches as patch
 from matplotlib import colors
 import numpy as np
 from datetime import datetime, timedelta
 import matplotlib.dates as mdates
-import time
+#import time
 
 ## Getters ###################################################################
 def get_games(deck_name):
@@ -173,7 +173,7 @@ def compute_games_map():
     return winrate_map, game_is_impossible
     
 ## Display ###################################################################
-def show_deck_stats(deck_name, fig=None, ax=None, cycler=None):  
+def show_deck_stats(deck_name, fig=None, ax=None, cycler=None, show_all=False):  
     """Display stats of given deck (winrate, scores)"""
     # Process input
     newfig = fig is None and ax is None
@@ -207,15 +207,18 @@ def show_deck_stats(deck_name, fig=None, ax=None, cycler=None):
                        title=deck_title)
     
     # Plot win rate
-    if newfig:
-        fig, ax = plt.subplots()
-        ax.plot(xx, line_wr0, color='r', linestyle='--')
-        ax.axis([xx[0], xx[-1], -0.05, 1.05])
-    ax.plot(xx, win_rate.wr, label='Win rate', marker='o')
-    make_date_axis(ax, ylabel='Win rate', newfig=False, title=deck_title)
+    if show_all:
+        if newfig:
+            fig, ax = plt.subplots()
+            ax.plot(xx, line_wr0, color='r', linestyle='--')
+            ax.axis([xx[0], xx[-1], -0.05, 1.05])
+        ax.plot(xx, win_rate.wr, label='Win rate', marker='o')
+        make_date_axis(ax, ylabel='Win rate', newfig=False, title=deck_title)
     
-def show_all_decks(up_to=None):
+def show_all_decks(up_to=None, name=[]):
     """Show progression of all decks scores through time"""
+    """TODO: select by name"""
+    """TODO: merge with show_deck_stats somehow"""
     # Retrieve decks
     all_decks = ygor.get_all_decks_ranked()
     if up_to is None:
@@ -231,7 +234,7 @@ def show_all_decks(up_to=None):
     ax.grid()
     for i in range(0, n_decks):
         show_deck_stats(all_decks.deck[i], fig=fig, ax=ax, 
-                        cycler=default_cycler)
+                        cycler=default_cycler, show_all=True)
         decks_legend.append(all_decks.deck[i])
     ax.grid()
     ax.legend(decks_legend, loc='best', fontsize='x-small', ncol=3)
@@ -306,9 +309,21 @@ def show_games_frequency(mode=None):
         ax.set_title('Games frequency')
         fig.colorbar(cax)
     
-def show_bars(use_cm = False, sort_by='elo'):
+def show_bars(sort_by='glicko', use_cm=False):
     """Show stylish bar graph with scores"""
     all_decks = ygor.get_all_decks_ranked()
+    
+    if(sort_by=='played'):
+        all_decks = all_decks.sort_values('ngames', ascending=False)
+    if(sort_by=='winrate'):
+        all_decks = all_decks.sort_values('winrate', ascending=False)
+    if(sort_by=='wins'):
+        all_decks = all_decks.sort_values('nwins', ascending=False)
+    if(sort_by=='loss'):
+        all_decks = all_decks.sort_values('nloss', ascending=False)
+    if(sort_by=='owner'):
+        all_decks = all_decks.sort_values('owner', ascending=False)
+        
     n_decks = len(all_decks)
     
     ngames = all_decks.ngames.tolist()
@@ -591,9 +606,6 @@ def suggest_new_matchup(player1=None, player2=None):
     new_matchup_between = free_matchups * filter_by_player
     new_matchup_between = new_matchup_between + new_matchup_between.T
     show_this_map(new_matchup_between)
-    
-    
-    
 
 
 

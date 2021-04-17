@@ -13,6 +13,7 @@ TODO: on adding a game, only compute scores of last pair
 import glicko2 as glk
 import ygomanagement as ygom
 import numpy as np
+import fileinput
 
 if ygom.TEST:
     DECK_RANK_FILE = 'test/deck_ranking.csv'
@@ -23,7 +24,7 @@ elo_0 = 1500
 glicko_0 = 1500
 rd_0 = 350
 
-def sort_decks(all_decks_ranked=None, sort_by='elo'):
+def sort_decks(all_decks_ranked=None, sort_by='glicko'):
     """Sort deck by score (elo or glicko)"""
     if all_decks_ranked is None:
         all_decks_ranked = get_all_decks_ranked()
@@ -69,6 +70,12 @@ def get_all_decks_ranked():
     """Return a DataFrame with all decks ranked"""
     return ygom.pd.read_csv(DECK_RANK_FILE)
 
+def show_all_decks_ranked():
+    """Print all decks"""
+    all_decks_ranked = get_all_decks_ranked()
+    print('Displaying all decks ranked...')
+    print(all_decks_ranked)
+
 def find_deck_rating(deck_name, all_decks_ranked=None):
     """Return deck rating given its name"""
     if all_decks_ranked is None:
@@ -76,7 +83,7 @@ def find_deck_rating(deck_name, all_decks_ranked=None):
     deck = all_decks_ranked.loc[all_decks_ranked.deck == deck_name].iloc[0]
     return deck
 
-def compute_all_scores(sort_by='elo'):
+def compute_all_scores(sort_by='glicko'):
     """Compute all decks scores for each game played"""
     all_games = ygom.get_all_games()
     n_games = len(all_games)
@@ -145,8 +152,19 @@ def compute_scores_last():
         game_i = last_games.iloc[i]
         deck1 = find_deck_rating(game_i.deck1, all_decks_ranked)
         deck2 = find_deck_rating(game_i.deck2, all_decks_ranked)
-
-
+        
+def rename_deck(old_name, new_name):
+    """Rename a deck in every file"""
+    """Note: function lies in the wrong module (should be ygomanagement)
+    for independence purposes (i.e. ygomanagement should not know ranking)"""
+    allfiles = [ygom.DECK_LIST_FILE, 
+                ygom.GAME_HIST_FILE, 
+                DECK_RANK_FILE]
+    for thisfile in allfiles:
+        with fileinput.FileInput(thisfile, inplace=True, backup='.bak') as file:
+            for line in file:
+                print(line.replace(old_name, new_name), end='')
+                
 
 
 

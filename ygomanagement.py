@@ -20,7 +20,7 @@ class GameResult(Enum):
     LOSE = 0
 
 ## Files name
-TEST = False
+TEST = True
 if TEST:
     DECK_LIST_FILE = 'test/deck_list.csv'
     GAME_HIST_FILE = 'test/game_history.csv'
@@ -74,8 +74,27 @@ def add_game(deck1, deck2, game_date=None):
         game_df = pd.DataFrame(data=gameData)
         # Append
         game_df.to_csv(f, header=f.tell()==0, index=False)    
-        
     return game_df
+
+def remove_last_game(nremov=1, verbose=False):
+    """Remove a number n (default 1) of the last logged games"""
+    # with open(GAME_HIST_FILE, 'r+') as file:
+    #     lines = file.readlines()
+    #     lines_rmv = lines[:-ngames]
+    all_games = get_all_games()
+    if verbose:
+        print('------- Warning: removing lines from file -------')
+        print(all_games)
+        print('Number of games logged: ' + str(len(all_games)))
+        print('-------------------------------------------------')
+    idxgames = len(all_games)
+    all_games.drop(labels=range(idxgames-nremov, idxgames), axis=0, inplace=True)
+    if verbose:
+        print('------- Deleted ' + str(nremov) + ' game(s) from file -------')
+        print(all_games)
+        print('Number of games logged: ' + str(len(all_games)))
+    with open(GAME_HIST_FILE, 'w') as f:
+        all_games.to_csv(f, header=f.tell()==0, index=False)
 
 def find_deck(deck_name):
     """Return deck as dict, based on its name"""
@@ -83,7 +102,7 @@ def find_deck(deck_name):
     deck = all_decks.loc[all_decks.deck == deck_name].iloc[0]
     return deck
 
-def show_all_decks():
+def show_all_decks_log():
     """Print all decks"""
     all_decks = get_all_decks()
     print('Displaying all decks...')
@@ -93,7 +112,7 @@ def show_log():
     """Print last games played"""
     all_games = get_all_games()
     print('Showing latest games...')
-    print(all_games.tail())
+    print(all_games.tail(15))
 
 def get_all_decks():
     """"Return a DataFrame containing all decks"""
@@ -106,8 +125,7 @@ def get_all_games():
 def find_owner(deck_name):
     """Return owner of a given deck"""
     return find_deck(deck_name).owner
-    
-    
+
     
     
     
