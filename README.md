@@ -19,9 +19,14 @@ The score and related values are computed using Mark Glickman's original code, s
 
 # User guide
 `import` Python modules
+
 `set` file names and location
+
 `ygomanagement.add_deck` >> add a new deck
+
 `ygomanagement.add_game` >> add a new game
+
 `ygoranking.compute_all_scores` >> compute scores of all given decks & games played
+
 `ygostats` >> visualize results
-'''
+
