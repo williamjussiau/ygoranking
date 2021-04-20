@@ -20,7 +20,7 @@ class GameResult(Enum):
     LOSE = 0
 
 ## Files name
-TEST = True
+TEST = False
 if TEST:
     DECK_LIST_FILE = 'test/deck_list.csv'
     GAME_HIST_FILE = 'test/game_history.csv'
