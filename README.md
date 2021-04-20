@@ -18,11 +18,10 @@ More details about the Glicko rating system can be found here: https://en.wikipe
 The score and related values are computed using Mark Glickman's original code, see: http://www.glicko.net/glicko.html
 
 # User guide
-'''
-import Python modules
-set file names and location
-ygomanagement.add_deck >> add a new deck
-ygomanagement.add_game >> add a new game
-ygoranking.compute_all_scores >> compute scores of all given decks & games played
-ygostats >> visualize results
+`import` Python modules
+`set` file names and location
+`ygomanagement.add_deck` >> add a new deck
+`ygomanagement.add_game` >> add a new game
+`ygoranking.compute_all_scores` >> compute scores of all given decks & games played
+`ygostats` >> visualize results
 '''
