@@ -56,7 +56,7 @@ def compute_elo(elo1, elo2, K=40):
     return int(elo1), int(elo2)
 
 def compute_glicko(glicko1, glicko2):
-    """Compute Glicko2 score of decks with initiale scores glicko1, glicko2
+    """Compute Glicko2 score of decks with initial scores glicko1, glicko2
     given deck with 1 won"""
     gl1 = glk.Player(rating=glicko1[0], rd=glicko1[1])
     gl2 = glk.Player(rating=glicko2[0], rd=glicko2[1])

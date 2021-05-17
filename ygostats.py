@@ -111,7 +111,7 @@ def make_date_axis(ax, ylabel, newfig=False, title=None,
 def assign_color_per_player(decks):
     """Assign different color to each player"""
     players = np.array([ygom.find_deck(dk).owner for dk in decks])
-    players_base = np.array(['Pierre', 'JRE', 'William'])
+    players_base = np.unique(ygom.get_all_decks().owner)
     players_baseclr = np.array(['tab:cyan','tab:green','tab:orange'])
     # owners_clr = [0]*len(owners)
     # for i in range(0, len(owners)):
@@ -215,29 +215,32 @@ def show_deck_stats(deck_name, fig=None, ax=None, cycler=None, show_all=False):
         ax.plot(xx, win_rate.wr, label='Win rate', marker='o')
         make_date_axis(ax, ylabel='Win rate', newfig=False, title=deck_title)
     
-def show_all_decks(up_to=None, name=[]):
+def show_all_decks(up_to=None, namelist=[]):
     """Show progression of all decks scores through time"""
-    """TODO: select by name"""
     """TODO: merge with show_deck_stats somehow"""
     # Retrieve decks
     all_decks = ygor.get_all_decks_ranked()
+    
     if up_to is None:
         n_decks = len(all_decks)
     else:
         n_decks = up_to
+    if len(namelist): # not 0
+        all_decks = all_decks[
+            all_decks.deck.isin(namelist)].reset_index(drop=True, inplace=False)
+        n_decks = len(namelist)
     
     decks_legend = []
     fig, ax = plt.subplots()
     default_cycler = (plt.cycler(linestyle=['-','--',':', '-.']) 
                       * plt.rcParams['axes.prop_cycle'])
     ax.set_prop_cycle(default_cycler)
-    ax.grid()
     for i in range(0, n_decks):
         show_deck_stats(all_decks.deck[i], fig=fig, ax=ax, 
                         cycler=default_cycler, show_all=True)
         decks_legend.append(all_decks.deck[i])
-    ax.grid()
     ax.legend(decks_legend, loc='best', fontsize='x-small', ncol=3)
+    ax.grid()
     
 def show_games_frequency(mode=None):
     """Plot Github-like table of games frequency"""
@@ -312,17 +315,7 @@ def show_games_frequency(mode=None):
 def show_bars(sort_by='glicko', use_cm=False):
     """Show stylish bar graph with scores"""
     all_decks = ygor.get_all_decks_ranked()
-    
-    if(sort_by=='played'):
-        all_decks = all_decks.sort_values('ngames', ascending=False)
-    if(sort_by=='winrate'):
-        all_decks = all_decks.sort_values('winrate', ascending=False)
-    if(sort_by=='wins'):
-        all_decks = all_decks.sort_values('nwins', ascending=False)
-    if(sort_by=='loss'):
-        all_decks = all_decks.sort_values('nloss', ascending=False)
-    if(sort_by=='owner'):
-        all_decks = all_decks.sort_values('owner', ascending=False)
+    all_decks.sort_values(sort_by, ascending=False, inplace=True)
         
     n_decks = len(all_decks)
     
@@ -384,7 +377,8 @@ def show_bars(sort_by='glicko', use_cm=False):
         if sort_by is 'elo':
             txt = str(scores_elo[i])
         else:
-            txt = str(scores_glicko[i]) #+ ' ' + '(' + str(scores_glickord[i]) + ')'
+            txt = str(scores_glicko[i]) 
+            #+ ' ' + '(' + str(scores_glickord[i]) + ')'
         #rect.get_height() + barw.get_children()[i].get_height()
         ax1.text(rect.get_x() + rect.get_width()/2.0, 
                  height, '%s' % txt, ha='center', va='bottom',
@@ -502,7 +496,7 @@ def show_scores(boxplot=True, step=False):
     fig.tight_layout()
     plt.show()
 
-def show_this_map(this_map=None, cmap=None):
+def show_map(this_map=None, cmap=None):
     """Display given map"""
     if this_map is None:
         winrate_map, game_is_impossible = compute_games_map()
@@ -559,7 +553,7 @@ def show_this_map(this_map=None, cmap=None):
     # fig.tight_layout()
     plt.show()
 
-def show_players():
+def show_players_summary():
     """Show stats of all players: played gamed, win/loss, nr of decks"""
     all_decks = ygor.get_all_decks_ranked()
     all_players = np.unique(np.array(all_decks.owner))
@@ -577,6 +571,72 @@ def show_players():
     players.reset_index(drop=True, inplace=True)
     return players
 
+def show_players_stats():
+    all_games = ygom.get_all_games()
+    all_decks = ygom.get_all_decks()
+    all_players = np.unique(np.array(all_decks.owner))
+    players_scores = ygom.pd.DataFrame(data=np.zeros((len(all_games)+1, 
+                                                      len(all_players))),
+                                       columns=all_players)
+    players_scores.iloc[0] = 3*[ygor.elo_0]
+    players_winrate = ygom.pd.DataFrame(data=np.zeros((len(all_games)+1, 
+                                                       len(all_players))),
+                                        columns=all_players)
+    players_winrate.iloc[0] = 3*[np.nan]
+    for ig in range(0, len(all_games)):
+        # Goal: fill row ig+1 with data from ig
+        
+        # shortcut
+        ip = ig+1
+    
+        # i <- i-1
+        players_scores.iloc[ip] = players_scores.iloc[ig]
+        players_winrate.iloc[ip] = players_winrate.iloc[ig]
+
+        # find winner, loser
+        win = ygom.find_owner(all_games.iloc[ig]['deck1'])
+        los = ygom.find_owner(all_games.iloc[ig]['deck2'])
+        
+        # if first game played, initialize winrate
+        if np.isnan(players_winrate.iloc[ip][win]):
+            players_winrate.iloc[ip][win] = 1
+        if np.isnan(players_winrate.iloc[ip][los]):
+            players_winrate.iloc[ip][los] = 0
+            
+        # compute score
+        score_win, score_los = ygor.compute_elo(players_scores.iloc[ig][win],
+                                                players_scores.iloc[ig][los])
+        # update
+        players_scores.iloc[ip][win] = score_win
+        players_scores.iloc[ip][los] = score_los
+        players_winrate.iloc[ip][win] = ((players_winrate.iloc[ip][win]*ig)\
+                                         +1)*1/ip  # n/N -> (n+1)/(N+1)
+        if players_winrate.iloc[ip][los]:
+            players_winrate.iloc[ip][los] = players_winrate.iloc[ig][los] *\
+                ig/ip # n/N -> n/(N+1)
+        else:
+            players_winrate.iloc[ip][los] = 0
+
+    # Plot scores
+    fig, ax2 = plt.subplots()
+    #ax1.plot(players_scores, '.')
+    #ax1.grid()
+    #ax1.set_xlabel('Number of games')
+    #ax1.set_ylabel('Score')
+
+    #ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    ax2.set_ylabel('Winrate')  # already handled xlabel ax1
+    ax2.set_xlabel('Number of games')
+    ax2.set_title('Players winrate over games')
+    
+    # ax2.tick_params(axis='y', labelcolor='g')
+    ax2.plot(players_winrate, '.:')
+    
+    ax2.set_ylim(0, 1)
+    ax2.legend(list(players_scores.columns), loc='best')
+    ax2.grid()
+
+
 def suggest_new_matchup(player1=None, player2=None):
     all_decks = ygor.get_all_decks_ranked()
     labels = all_decks.deck.tolist()
@@ -588,7 +648,7 @@ def suggest_new_matchup(player1=None, player2=None):
     # matchup_undone[winrate_map>=0] = 0
     
     free_matchups = matchup_undone * game_is_possible
-    # show_this_map(free_matchups)
+    # show_map(free_matchups)
     
     if player1 is None and player2 is None:
         filter_by_player = np.ones(winrate_map.shape, dtype=int)
@@ -602,10 +662,10 @@ def suggest_new_matchup(player1=None, player2=None):
                     and (deck2_owner==player1 or deck2_owner==player2)):
                         filter_by_player[i,j] = 1
                     
-    # show_this_map(filter_by_player)
+    # show_map(filter_by_player)
     new_matchup_between = free_matchups * filter_by_player
     new_matchup_between = new_matchup_between + new_matchup_between.T
-    show_this_map(new_matchup_between)
+    show_map(new_matchup_between)
 
 
 
