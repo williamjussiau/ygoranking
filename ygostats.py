@@ -18,6 +18,8 @@ from datetime import datetime, timedelta
 import matplotlib.dates as mdates
 #import time
 
+EXPORT_PATH = './examples/'
+
 ## Getters ###################################################################
 def get_games(deck_name):
     """Extract games of given deck"""
@@ -242,6 +244,8 @@ def show_all_decks(up_to=None, namelist=[]):
     ax.legend(decks_legend, loc='best', fontsize='x-small', ncol=3)
     ax.grid()
     
+    return fig
+    
 def show_games_frequency(mode=None):
     """Plot Github-like table of games frequency"""
     all_games = ygom.get_all_games()
@@ -311,6 +315,8 @@ def show_games_frequency(mode=None):
                        bottom=True, top=False, labelbottom=True, labeltop=False)
         ax.set_title('Games frequency')
         fig.colorbar(cax)
+        
+    return fig
     
 def show_bars(sort_by='glicko', use_cm=False):
     """Show stylish bar graph with scores"""
@@ -386,6 +392,7 @@ def show_bars(sort_by='glicko', use_cm=False):
 
     fig.tight_layout()
     plt.show()
+    return fig
     
 def show_scores(boxplot=True, step=False):
     """Show scores graph with different options (box, whiskers...)"""
@@ -495,6 +502,7 @@ def show_scores(boxplot=True, step=False):
     
     fig.tight_layout()
     plt.show()
+    return fig
 
 def show_map(this_map=None, cmap=None):
     """Display given map"""
@@ -552,6 +560,8 @@ def show_map(this_map=None, cmap=None):
     # Show
     # fig.tight_layout()
     plt.show()
+    
+    return fig
 
 def show_players_summary():
     """Show stats of all players: played gamed, win/loss, nr of decks"""
@@ -635,6 +645,8 @@ def show_players_stats():
     ax2.set_ylim(0, 1)
     ax2.legend(list(players_scores.columns), loc='best')
     ax2.grid()
+    
+    return fig
 
 
 def suggest_new_matchup(player1=None, player2=None):
@@ -667,8 +679,14 @@ def suggest_new_matchup(player1=None, player2=None):
     new_matchup_between = new_matchup_between + new_matchup_between.T
     show_map(new_matchup_between)
 
-
-
-
-
+def export_examples():
+    """Export all stats as images"""
+    mkp = lambda nm: EXPORT_PATH+nm+'.png'
+    show_bars().savefig(mkp('bars'))
+    show_scores().savefig(mkp('scores_default'))
+    show_scores(boxplot=False, step=False).savefig(mkp('scores_line'))
+    show_scores(boxplot=False, step=True).savefig(mkp('scores_step'))
+    show_all_decks(up_to=5).savefig(mkp('all_decks5'))
+    show_games_frequency().savefig(mkp('games_frequency_map'))
+    show_map().savefig(mkp('map'), bbox_inches=0.2)
 
