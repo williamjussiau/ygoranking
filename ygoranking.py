@@ -107,7 +107,8 @@ def compute_all_scores(sort_by='glicko'):
         deck2 = find_deck_rating(game_i.deck2, all_decks_ranked)
         # Compute newi= ratings
         elo1, elo2 = compute_elo(deck1.elo, deck2.elo)
-        gl1, gl2 = compute_glicko([deck1.glicko, deck1.rd], [deck2.glicko, deck2.rd])
+        gl1, gl2 = compute_glicko([deck1.glicko, deck1.rd], 
+                                  [deck2.glicko, deck2.rd])
         glicko1 = int(gl1.rating)
         rd1 = int(gl1.rd)
         glicko2 = int(gl2.rating)
@@ -161,7 +162,8 @@ def rename_deck(old_name, new_name):
                 ygom.GAME_HIST_FILE, 
                 DECK_RANK_FILE]
     for thisfile in allfiles:
-        with fileinput.FileInput(thisfile, inplace=True, backup='.bak') as file:
+        with fileinput.FileInput(thisfile, inplace=True, backup='.bak') \
+            as file:
             for line in file:
                 print(line.replace(old_name, new_name), end='')
                 

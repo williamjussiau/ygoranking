@@ -229,7 +229,8 @@ def show_all_decks(up_to=None, namelist=[]):
         n_decks = up_to
     if len(namelist): # not 0
         all_decks = all_decks[
-            all_decks.deck.isin(namelist)].reset_index(drop=True, inplace=False)
+            all_decks.deck.isin(namelist)].reset_index(drop=True, 
+                                                       inplace=False)
         n_decks = len(namelist)
     
     decks_legend = []
@@ -312,7 +313,8 @@ def show_games_frequency(mode=None):
                                         for i in range(0, nweeks)])
         ax.set_xticklabels(mondays_dates)
         ax.tick_params(axis='x', labelrotation=45, 
-                       bottom=True, top=False, labelbottom=True, labeltop=False)
+                       bottom=True, top=False, 
+                       labelbottom=True, labeltop=False)
         ax.set_title('Games frequency')
         fig.colorbar(cax)
         
@@ -522,7 +524,7 @@ def show_map(this_map=None, cmap=None):
     fig = plt.figure()
     ax = plt.gca()
     
-    # Colormap & overlay matrices (genuine games & impossible games greyed out)
+    # Colormap & overlay matrices (genuine games, impossible games greyed out)
     normalizer = colors.DivergingNorm(vcenter=0.5, 
                                       vmin=0, 
                                       vmax=np.max(winrate_map))
@@ -634,7 +636,7 @@ def show_players_stats():
     #ax1.set_xlabel('Number of games')
     #ax1.set_ylabel('Score')
 
-    #ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    #ax2 = ax1.twinx()  # instantiate a second axes that with the same x-axis
     ax2.set_ylabel('Winrate')  # already handled xlabel ax1
     ax2.set_xlabel('Number of games')
     ax2.set_title('Players winrate over games')

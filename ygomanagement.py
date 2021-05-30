@@ -88,7 +88,8 @@ def remove_last_game(nremov=1, verbose=False):
         print('Number of games logged: ' + str(len(all_games)))
         print('-------------------------------------------------')
     idxgames = len(all_games)
-    all_games.drop(labels=range(idxgames-nremov, idxgames), axis=0, inplace=True)
+    all_games.drop(labels=range(idxgames-nremov, idxgames),\
+                   axis=0, inplace=True)
     if verbose:
         print('------- Deleted ' + str(nremov) + ' game(s) from file -------')
         print(all_games)
