@@ -6,8 +6,7 @@ Created on Sun Nov 22 16:19:07 2020
 @author: william
 """
 
-
-import glicko2 as glk
+import glicko.glicko2 as glk
 import ygomanagement as ygom
 import numpy as np
 import fileinput
