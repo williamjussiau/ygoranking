@@ -472,23 +472,24 @@ def show_scores(boxplot=True, step=False):
         #                            fill=True,
         #                            capstyle=None,
         #                            joinstyle=None)
-        bplt = ax2.boxplot(scores_samples,
-                           labels=labels,
-                           notch=False,
-                           meanline=True,
-                           positions=range(0, n_decks),
-                           showmeans=True,
-                           showcaps=True,
-                           showbox=True,
-                           showfliers=False,
-                           manage_ticks=False,
-                           patch_artist=True,
-                           boxprops=dict(facecolor=clw, color='k',
-                                         alpha=0.5),
-                           capprops=dict(color=clw, alpha=0.5),
-                           whiskerprops=dict(color=clw, alpha=0.5),
-                           meanprops=dict(color=clw, linestyle='-')
-                           )
+        # bplt =
+        ax2.boxplot(scores_samples,
+                    labels=labels,
+                    notch=False,
+                    meanline=True,
+                    positions=range(0, n_decks),
+                    showmeans=True,
+                    showcaps=True,
+                    showbox=True,
+                    showfliers=False,
+                    manage_ticks=False,
+                    patch_artist=True,
+                    boxprops=dict(facecolor=clw, color='k',
+                                  alpha=0.5),
+                    capprops=dict(color=clw, alpha=0.5),
+                    whiskerprops=dict(color=clw, alpha=0.5),
+                    meanprops=dict(color=clw, linestyle='-')
+                    )
 
     else:
         nsig = 1

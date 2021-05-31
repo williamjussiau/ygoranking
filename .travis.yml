@@ -2,7 +2,7 @@ language: python
 
 before_install:
   # Install flake8 for python code checking
-  - pip install flake8 flake8-docstrings
+  - pip install flake8 #flake8-docstrings
   #- sudo apt-get update -qq
   #- sudo apt-get install -qq python-flake8
 
