@@ -369,15 +369,15 @@ def show_bars(sort_by='glicko', use_cm=False):
             return cm.get_cmap(clr)(colors.Normalize(vmin=min(data),
                                                      vmax=max(data))(data))
         clg = set_color(nloss, cmp[1])
-        # clw = set_color(nwins, cmp[0])
+        clw = set_color(nwins, cmp[0])
     else:
         clg = clr[1]
-        # clw = clr[0]
+        clw = clr[0]
 
     barg = ax1.bar(labels, nloss, bottom=nwins, alpha=alpha, color=clg,
                    edgecolor='k')
-    # barw = ax1.bar(labels, nwins, alpha=alpha, color=clw,
-    #               edgecolor='k')
+    ax1.bar(labels, nwins, alpha=alpha, color=clw,
+            edgecolor='k')
 
     # Color labels depending on owner
     owners_clr = assign_color_per_player(labels)
@@ -716,4 +716,4 @@ def export_examples():
     show_scores(boxplot=False, step=True).savefig(mkp('scores_step'))
     show_all_decks(up_to=5).savefig(mkp('all_decks5'))
     show_games_frequency().savefig(mkp('games_frequency_map'))
-    show_map().savefig(mkp('map'), bbox_inches=0.2)
+    show_map().savefig(mkp('map'))
