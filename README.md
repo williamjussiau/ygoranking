@@ -30,13 +30,13 @@ ygom.GAME_HIST_FILE = './...'
 ygor.DECK_RANK_FILE = './...'
 
 # 3. Add decks
-ygom.add_deck(deck_name_1, deck_owner_1)
-ygom.add_deck(deck_name_2, deck_owner_2)
+ygom.add_deck('deck_name_1', 'deck_owner_1')
+ygom.add_deck('deck_name_2', 'deck_owner_2')
 
 # 4. Add games - first deck referenced is considered the winner
-ygom.add_game(deck_name_1, deck_name_2) # player 1 won
-ygom.add_game(deck_name_2, deck_name_1) # player 2 won
-ygom.add_game(deck_name_1, deck_name_2) # player 1 won the BO3
+ygom.add_game('deck_name_1', 'deck_name_2') # player 1 won
+ygom.add_game('deck_name_2', 'deck_name_1') # player 2 won
+ygom.add_game('deck_name_1', 'deck_name_2') # player 1 won the BO3
 
 # 5. Compute scores relative to games at previous steps - not done by automatically
 ygor.compute_all_scores()
