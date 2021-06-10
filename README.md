@@ -19,34 +19,42 @@ The score and related values are computed using Mark Glickman's original code, s
 
 # User guide (in progress)
 ```python
+# 1. Import modules
 import ygomanagement as ygom
 import ygoranking as ygor
 import ygostats as ygos
 
-# Define files location if necessary
-ygom.DECK_LIST_FILE = ''
-ygom.GAME_HIST_FILE = ''
-ygor.DECK_RANK_FILE = ''
+# 2. Define files location if necessary
+ygom.DECK_LIST_FILE = './...'
+ygom.GAME_HIST_FILE = './...'
+ygor.DECK_RANK_FILE = './...'
 
-# Add decks
+# 3. Add decks
 ygom.add_deck(deck_name_1, deck_owner_1)
 ygom.add_deck(deck_name_2, deck_owner_2)
 
-# Add games - first deck referenced is considered the winner
-ygom.add_game(deck_name_1, deck_name_2) % player 1 won
-ygom.add_game(deck_name_2, deck_name_1) % player 2 won
-ygom.add_game(deck_name_1, deck_name_2) % player 1 won the BO3
+# 4. Add games - first deck referenced is considered the winner
+ygom.add_game(deck_name_1, deck_name_2) # player 1 won
+ygom.add_game(deck_name_2, deck_name_1) # player 2 won
+ygom.add_game(deck_name_1, deck_name_2) # player 1 won the BO3
 
-# Compute scores relative to games at previous steps - not done by automatically
+# 5. Compute scores relative to games at previous steps - not done by automatically
 ygor.compute_all_scores()
 
-# Visualize results - functions generally start with 'show_'
+# 6. Visualize results - functions generally start with 'show_'
 # Bar plot
 ygos.show_bars()
 # Match-ups map
 ygos.show_map()
 # Games frequency - GitHub-like, based on date of registration
 ygos.show_games_frequency()
+# Players winrate over time
+ygos.show_player_stats()
+# Optionally, export figures
+ygos.export_examples()
+
+# 7. When opening a new session, you can add new decks, new games and visualize new results
+# Be careful to always recompute results based on registered games
 ```
 
 
