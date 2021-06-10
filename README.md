@@ -17,16 +17,36 @@ More details about the Elo rating system can be found here: https://en.wikipedia
 More details about the Glicko rating system can be found here: https://en.wikipedia.org/wiki/Glicko_rating_system
 The score and related values are computed using Mark Glickman's original code, see: http://www.glicko.net/glicko.html
 
-# User guide
-`import` Python modules
+# User guide (in progress)
+```python
+import ygomanagement as ygom
+import ygoranking as ygor
+import ygostats as ygos
 
-`set` file names and location
+% Define files location if necessary
+ygom.DECK_LIST_FILE = ''
+ygom.GAME_HIST_FILE = ''
+ygor.DECK_RANK_FILE = ''
 
-`ygomanagement.add_deck` >> add a new deck
+% Add decks
+ygom.add_deck(deck_name_1, deck_owner_1)
+ygom.add_deck(deck_name_2, deck_owner_2)
 
-`ygomanagement.add_game` >> add a new game
+% Add games - first deck referenced is considered the winner
+ygom.add_game(deck_name_1, deck_name_2) % player 1 won
+ygom.add_game(deck_name_2, deck_name_1) % player 2 won
+ygom.add_game(deck_name_1, deck_name_2) % player 1 won the BO3
 
-`ygoranking.compute_all_scores` >> compute scores of all given decks & games played
+% Compute scores relative to games at previous steps - not done by automatically
+ygor.compute_all_scores()
 
-`ygostats` >> visualize results
+% Visualize results - functions generally start with 'show_'
+% Bar plot
+ygos.show_bars()
+% Match-ups map
+ygos.show_map()
+% Games frequency - GitHub-like, based on date of registration
+ygos.show_games_frequency()
+```
+
 
