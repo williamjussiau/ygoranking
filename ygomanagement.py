@@ -84,7 +84,7 @@ def add_game(deck1, deck2, game_date=None):
     return game_df
 
 
-def remove_last_game(nremov=1, verbose=False):
+def remove_last_game(n=1, verbose=False):
     """Remove a number n (default 1) of the last logged games"""
     # with open(GAME_HIST_FILE, 'r+') as file:
     #     lines = file.readlines()
@@ -96,10 +96,10 @@ def remove_last_game(nremov=1, verbose=False):
         print('Number of games logged: ' + str(len(all_games)))
         print('-------------------------------------------------')
     idxgames = len(all_games)
-    all_games.drop(labels=range(idxgames-nremov, idxgames),
+    all_games.drop(labels=range(idxgames-n, idxgames),
                    axis=0, inplace=True)
     if verbose:
-        print('------- Deleted ' + str(nremov) + ' game(s) from file -------')
+        print('------- Deleted ' + str(n) + ' game(s) from file -------')
         print(all_games)
         print('Number of games logged: ' + str(len(all_games)))
     with open(GAME_HIST_FILE, 'w') as f:
