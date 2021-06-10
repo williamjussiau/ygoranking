@@ -23,29 +23,29 @@ import ygomanagement as ygom
 import ygoranking as ygor
 import ygostats as ygos
 
-% Define files location if necessary
+# Define files location if necessary
 ygom.DECK_LIST_FILE = ''
 ygom.GAME_HIST_FILE = ''
 ygor.DECK_RANK_FILE = ''
 
-% Add decks
+# Add decks
 ygom.add_deck(deck_name_1, deck_owner_1)
 ygom.add_deck(deck_name_2, deck_owner_2)
 
-% Add games - first deck referenced is considered the winner
+# Add games - first deck referenced is considered the winner
 ygom.add_game(deck_name_1, deck_name_2) % player 1 won
 ygom.add_game(deck_name_2, deck_name_1) % player 2 won
 ygom.add_game(deck_name_1, deck_name_2) % player 1 won the BO3
 
-% Compute scores relative to games at previous steps - not done by automatically
+# Compute scores relative to games at previous steps - not done by automatically
 ygor.compute_all_scores()
 
-% Visualize results - functions generally start with 'show_'
-% Bar plot
+# Visualize results - functions generally start with 'show_'
+# Bar plot
 ygos.show_bars()
-% Match-ups map
+# Match-ups map
 ygos.show_map()
-% Games frequency - GitHub-like, based on date of registration
+# Games frequency - GitHub-like, based on date of registration
 ygos.show_games_frequency()
 ```
 
