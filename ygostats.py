@@ -122,9 +122,9 @@ def make_date_axis(ax, ylabel, newfig=False, title=None,
 
 def assign_color_per_player(decks):
     """Assign different color to each player"""
-    players = np.array([ygom.find_deck(dk).owner for dk in decks])
-    players_base = np.unique(ygom.get_all_decks().owner)
-    players_baseclr = np.array(['tab:cyan', 'tab:green', 'tab:orange'])
+    # players = np.array([ygom.find_deck(dk).owner for dk in decks])
+    # players_base = np.unique(ygom.get_all_decks().owner)
+    # players_baseclr = np.array(['tab:cyan', 'tab:green', 'tab:orange'])
     # owners_clr = [0]*len(owners)
     # for i in range(0, len(owners)):
     #     for j in range(0, len(owners_base)):
@@ -132,10 +132,11 @@ def assign_color_per_player(decks):
     #             owners_clr[i] = owners_baseclr[j]
     # return owners_clr
     # or with np.array:
-    return players_baseclr[
-        np.where(players[:, None] == players_base[None])[1]].tolist()
+    # return players_baseclr[
+    #     np.where(players[:, None] == players_base[None])[1]].tolist()
     # or
     # owners_baseclr[np.argmax(owners[:,None]==owners_base[None], axis=1)]
+    return ['k']*len(decks)
 
 
 def color_ticks_by_player(ax, color_list, direction='x'):
@@ -393,7 +394,7 @@ def show_bars(sort_by='glicko', use_cm=False):
     ax2.plot(t, winrates, linestyle=':', marker='o', color=clr[2],
              drawstyle='default')  # drawstyle='steps-mid'
     ax2.hlines(0.5,
-               xmin=ax2.get_xlim()[0]+1, xmax=ax2.get_xlim()[1]-1,
+               xmin=ax2.get_xlim()[0], xmax=ax2.get_xlim()[1],
                color=clr[2], linestyle='--')
 
     # Add text on top of bar
@@ -516,7 +517,7 @@ def show_scores(boxplot=True, step=False):
                              alpha=0.2, label='+-2rd', color=clw)
 
     ax2.hlines(ygor.elo_0,
-               xmin=ax2.get_xlim()[0]+1, xmax=ax2.get_xlim()[1]-1,
+               xmin=ax2.get_xlim()[0], xmax=ax2.get_xlim()[1],
                color=clr[2], linestyle='--', linewidth=0.5)
 
     ax1.set_ylim([ax2.get_ylim()[0], ax2.get_ylim()[1]])

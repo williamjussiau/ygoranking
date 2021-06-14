@@ -22,30 +22,46 @@ class GameResult(Enum):
     LOSE = 0
 
 
+class Mode(Enum):
+    PLAYER = 1
+    DECK = 2
+
+
 # # Files name ###############################################################
 
+MODE = Mode.PLAYER
 
 TEST = False
 if TEST:
     DECK_LIST_FILE = 'test/deck_list.csv'
-    GAME_HIST_FILE = 'test/game_history.csv'
+    PLAYER_LIST_FILE = 'test/player_list.csv'
+    GAME_HIST_FILE_DECK = 'test/game_history_with_decks.csv'
+    GAME_HIST_FILE_PLAYER = 'test/game_history_with_players.csv'
 else:
     DECK_LIST_FILE = 'data/deck_list.csv'
-    GAME_HIST_FILE = 'data/game_history.csv'
+    PLAYER_LIST_FILE = 'data/player_list.csv'
+    GAME_HIST_FILE_DECK = 'data/game_history_with_decks.csv'
+    GAME_HIST_FILE_PLAYER = 'data/game_history_with_players.csv'
+
+GAME_HIST_FILE = GAME_HIST_FILE_DECK if MODE == Mode.DECK \
+    else GAME_HIST_FILE_PLAYER
+LIST_FILE = DECK_LIST_FILE if MODE == Mode.DECK \
+    else PLAYER_LIST_FILE
 
 # # Functions ################################################################
 
 
-def add_deck(deck_name, deck_owner, creation_date=None):
+def add_deck(deck_name='', deck_owner='',
+             creation_date=None, file=DECK_LIST_FILE):
     """Add new deck to the database"""
     # Date today
     if creation_date is None:
         creation_date = date.today().strftime("%d/%m/%Y")
     # Open or create file
-    with open(DECK_LIST_FILE, 'a') as f:
+    with open(file, 'a') as f:
         # Retrieve deck number
         if f.tell():
-            all_decks = pd.read_csv(DECK_LIST_FILE)
+            all_decks = pd.read_csv(file)
             n_decks = len(all_decks.index)
         else:
             n_decks = 0
@@ -60,16 +76,23 @@ def add_deck(deck_name, deck_owner, creation_date=None):
     return deck_df
 
 
-def add_game(deck1, deck2, game_date=None):
+def add_player(player_name, file=PLAYER_LIST_FILE):
+    """Quick fix: transform deck_name to player_name in file"""
+    return add_deck(deck_name=player_name, deck_owner=player_name, file=file)
+
+
+def add_game(deck1, deck2,
+             game_date=None,
+             file=GAME_HIST_FILE_DECK):
     """Add new game to the database"""
     # Process input
     if game_date is None:
         game_date = date.today().strftime("%d/%m/%Y")
 
-    with open(GAME_HIST_FILE, 'a') as f:
+    with open(file, 'a') as f:
         # Retrieve game number
         if f.tell():
-            all_games = pd.read_csv(GAME_HIST_FILE)
+            all_games = pd.read_csv(file)
             n_games = len(all_games.index)
         else:
             n_games = 0
@@ -84,9 +107,22 @@ def add_game(deck1, deck2, game_date=None):
     return game_df
 
 
+def add_game_player(player1, player2,
+                    game_date=None,
+                    file=GAME_HIST_FILE_PLAYER):
+    """Add new game to the game history w players"""
+    return add_game(player1, player2, file=file)
+
+
+def add_game_full(deck1_player1, deck2_player2, game_date=None):
+    df1 = add_game(deck1_player1[0], deck2_player2[0])
+    df2 = add_game_player(deck1_player1[1], deck2_player2[1])
+    return df1, df2
+
+
 def remove_last_game(n=1, verbose=False):
     """Remove a number n (default 1) of the last logged games"""
-    # with open(GAME_HIST_FILE, 'r+') as file:
+    # with open(GAME_HIST_FILE_DECK, 'r+') as file:
     #     lines = file.readlines()
     #     lines_rmv = lines[:-ngames]
     all_games = get_all_games()
@@ -109,8 +145,10 @@ def remove_last_game(n=1, verbose=False):
 def find_deck(deck_name):
     """Return deck as dict, based on its name"""
     all_decks = get_all_decks()
-    deck = all_decks.loc[all_decks.deck == deck_name].iloc[0]
-    return deck
+    try:
+        return all_decks.loc[all_decks.deck == deck_name].iloc[0]
+    except IndexError:
+        return 'Error: deck not found'
 
 
 def show_all_decks_log():
@@ -129,7 +167,7 @@ def show_log():
 
 def get_all_decks():
     """"Return a DataFrame containing all decks"""
-    return pd.read_csv(DECK_LIST_FILE)
+    return pd.read_csv(LIST_FILE)
 
 
 def get_all_games():

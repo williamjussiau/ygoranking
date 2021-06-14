@@ -13,8 +13,14 @@ import fileinput
 
 if ygom.TEST:
     DECK_RANK_FILE = 'test/deck_ranking.csv'
+    PLAYER_RANK_FILE = 'test/player_ranking.csv'
 else:
     DECK_RANK_FILE = 'data/deck_ranking.csv'
+    PLAYER_RANK_FILE = 'data/player_ranking.csv'
+
+RANK_FILE = DECK_RANK_FILE if ygom.MODE == ygom.Mode.DECK \
+    else PLAYER_RANK_FILE
+
 
 elo_0 = 1500
 glicko_0 = 1500
@@ -38,13 +44,13 @@ def sort_decks(all_decks_ranked=None, sort_by='glicko'):
 def rank_decks():
     """Print deck ranking and log to file"""
     all_decks_sorted = sort_decks()
-    log_to_file(all_decks_sorted, logfile=DECK_RANK_FILE)
-    print('Ranking decks by score in file: ' + DECK_RANK_FILE)
+    log_to_file(all_decks_sorted, logfile=RANK_FILE)
+    print('Ranking decks by score in file: ' + RANK_FILE)
     print(all_decks_sorted)
     return all_decks_sorted
 
 
-def log_to_file(df, logfile=DECK_RANK_FILE):
+def log_to_file(df, logfile=RANK_FILE):
     """Log given DataFrame to base"""
     df.to_csv(logfile, index=False)
 
@@ -78,7 +84,7 @@ def compute_glicko(glicko1, glicko2):
 
 def get_all_decks_ranked():
     """Return a DataFrame with all decks ranked"""
-    return ygom.pd.read_csv(DECK_RANK_FILE)
+    return ygom.pd.read_csv(RANK_FILE)
 
 
 def show_all_decks_ranked():
@@ -118,7 +124,7 @@ def compute_all_scores(sort_by='glicko'):
         game_i = all_games.iloc[i]
         deck1 = find_deck_rating(game_i.deck1, all_decks_ranked)
         deck2 = find_deck_rating(game_i.deck2, all_decks_ranked)
-        # Compute newi= ratings
+        # Compute new ratings
         elo1, elo2 = compute_elo(deck1.elo, deck2.elo)
         gl1, gl2 = compute_glicko([deck1.glicko, deck1.rd],
                                   [deck2.glicko, deck2.rd])
@@ -144,19 +150,17 @@ def compute_all_scores(sort_by='glicko'):
         all_scores[i, :] = [elo1, elo2, glicko1, rd1, glicko2, rd2]
 
     # Append new columns to games file
-    all_games[['elo1',
-               'elo2',
-               'gl1',
-               'rd1',
-               'gl2',
-               'rd2']] = all_scores
+    new_cols = ['elo1', 'elo2', 'gl1', 'rd1', 'gl2', 'rd2']
+    for i in range(6):
+        all_games[new_cols[i]] = all_scores[:, i]
+    # all_games[new_cols] = all_scores  # should work but doesn't
 
     # Log new games
     log_to_file(all_games, logfile=ygom.GAME_HIST_FILE)
 
     # Write ranking file
     all_decks_ranked = sort_decks(all_decks_ranked, sort_by=sort_by)
-    log_to_file(all_decks_ranked, logfile=DECK_RANK_FILE)
+    log_to_file(all_decks_ranked, logfile=RANK_FILE)
 
 
 def compute_scores_last():
@@ -180,8 +184,8 @@ def rename_deck(old_name, new_name):
     """Note: function lies in the wrong module (should be ygomanagement)
     for independence purposes (i.e. ygomanagement should not know ranking)"""
     allfiles = [ygom.DECK_LIST_FILE,
-                ygom.GAME_HIST_FILE,
-                DECK_RANK_FILE]
+                ygom.GAME_HIST_FILE_DECK,
+                RANK_FILE]
     for thisfile in allfiles:
         with fileinput.FileInput(thisfile, inplace=True, backup='.bak') \
                 as file:
