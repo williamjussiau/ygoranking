@@ -163,20 +163,20 @@ def compute_all_scores(sort_by='glicko'):
     log_to_file(all_decks_ranked, logfile=RANK_FILE)
 
 
-def compute_scores_last():
-    """Compute scores from given game"""
-    """TODO"""
-    pass
-    # all_games = ygom.get_all_games()
-    # last_games = all_games.loc[ygom.pd.isnull(all_games.elo1)]
-    # n_last = len(last_games)
+# def compute_scores_last():
+#     """Compute scores from given game"""
+#     """TODO"""
+#     pass
+#     # all_games = ygom.get_all_games()
+#     # last_games = all_games.loc[ygom.pd.isnull(all_games.elo1)]
+#     # n_last = len(last_games)
 
-    # all_decks_ranked = get_all_decks_ranked()
-    # for i in range(0, n_last):
-    #     # Get game & decks
-    #     game_i = last_games.iloc[i]
-    #     deck1 = find_deck_rating(game_i.deck1, all_decks_ranked)
-    #     deck2 = find_deck_rating(game_i.deck2, all_decks_ranked)
+#     # all_decks_ranked = get_all_decks_ranked()
+#     # for i in range(0, n_last):
+#     #     # Get game & decks
+#     #     game_i = last_games.iloc[i]
+#     #     deck1 = find_deck_rating(game_i.deck1, all_decks_ranked)
+#     #     deck2 = find_deck_rating(game_i.deck2, all_decks_ranked)
 
 
 def rename_deck(old_name, new_name):

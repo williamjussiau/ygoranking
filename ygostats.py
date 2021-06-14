@@ -587,124 +587,124 @@ def show_map(this_map=None, cmap=None):
     return fig
 
 
-def show_players_summary():
-    """Show stats of all players: played gamed, win/loss, nr of decks"""
-    all_decks = ygor.get_all_decks_ranked()
-    all_players = np.unique(np.array(all_decks.owner))
-    players = ygom.pd.DataFrame()
-    for i in range(0, len(all_players)):
-        player_i = all_decks[all_decks.owner == all_players[i]]
-        player_dict = dict({'name': all_players[i],
-                            'ndecks': len(player_i),
-                            'ngames': sum(player_i.ngames),
-                            'nwins': sum(player_i.nwins),
-                            'nloss': sum(player_i.nloss),
-                            'avgwinrate': sum(player_i.nwins) /
-                            sum(player_i.ngames)})
-        players = players.append(ygom.pd.DataFrame(data=[player_dict]))
-    players.reset_index(drop=True, inplace=True)
-    return players
+# def show_players_summary():
+#     """Show stats of all players: played gamed, win/loss, nr of decks"""
+#     all_decks = ygor.get_all_decks_ranked()
+#     all_players = np.unique(np.array(all_decks.owner))
+#     players = ygom.pd.DataFrame()
+#     for i in range(0, len(all_players)):
+#         player_i = all_decks[all_decks.owner == all_players[i]]
+#         player_dict = dict({'name': all_players[i],
+#                             'ndecks': len(player_i),
+#                             'ngames': sum(player_i.ngames),
+#                             'nwins': sum(player_i.nwins),
+#                             'nloss': sum(player_i.nloss),
+#                             'avgwinrate': sum(player_i.nwins) /
+#                             sum(player_i.ngames)})
+#         players = players.append(ygom.pd.DataFrame(data=[player_dict]))
+#     players.reset_index(drop=True, inplace=True)
+#     return players
 
 
-def show_players_stats():
-    all_games = ygom.get_all_games()
-    all_decks = ygom.get_all_decks()
-    all_players = np.unique(np.array(all_decks.owner))
-    players_scores = ygom.pd.DataFrame(data=np.zeros((len(all_games)+1,
-                                                      len(all_players))),
-                                       columns=all_players)
-    players_scores.iloc[0] = 3*[ygor.elo_0]
-    players_winrate = ygom.pd.DataFrame(data=np.zeros((len(all_games)+1,
-                                                       len(all_players))),
-                                        columns=all_players)
-    players_winrate.iloc[0] = 3*[np.nan]
-    for ig in range(0, len(all_games)):
-        # Goal: fill row ig+1 with data from ig
+# def show_players_stats():
+#     all_games = ygom.get_all_games()
+#     all_decks = ygom.get_all_decks()
+#     all_players = np.unique(np.array(all_decks.owner))
+#     players_scores = ygom.pd.DataFrame(data=np.zeros((len(all_games)+1,
+#                                                       len(all_players))),
+#                                        columns=all_players)
+#     players_scores.iloc[0] = 3*[ygor.elo_0]
+#     players_winrate = ygom.pd.DataFrame(data=np.zeros((len(all_games)+1,
+#                                                        len(all_players))),
+#                                         columns=all_players)
+#     players_winrate.iloc[0] = 3*[np.nan]
+#     for ig in range(0, len(all_games)):
+#         # Goal: fill row ig+1 with data from ig
 
-        # shortcut
-        ip = ig+1
+#         # shortcut
+#         ip = ig+1
 
-        # i <- i-1
-        players_scores.iloc[ip] = players_scores.iloc[ig]
-        players_winrate.iloc[ip] = players_winrate.iloc[ig]
+#         # i <- i-1
+#         players_scores.iloc[ip] = players_scores.iloc[ig]
+#         players_winrate.iloc[ip] = players_winrate.iloc[ig]
 
-        # find winner, loser
-        win = ygom.find_owner(all_games.iloc[ig]['deck1'])
-        los = ygom.find_owner(all_games.iloc[ig]['deck2'])
+#         # find winner, loser
+#         win = ygom.find_owner(all_games.iloc[ig]['deck1'])
+#         los = ygom.find_owner(all_games.iloc[ig]['deck2'])
 
-        # if first game played, initialize winrate
-        if np.isnan(players_winrate.iloc[ip][win]):
-            players_winrate.iloc[ip][win] = 1
-        if np.isnan(players_winrate.iloc[ip][los]):
-            players_winrate.iloc[ip][los] = 0
+#         # if first game played, initialize winrate
+#         if np.isnan(players_winrate.iloc[ip][win]):
+#             players_winrate.iloc[ip][win] = 1
+#         if np.isnan(players_winrate.iloc[ip][los]):
+#             players_winrate.iloc[ip][los] = 0
 
-        # compute score
-        score_win, score_los = ygor.compute_elo(players_scores.iloc[ig][win],
-                                                players_scores.iloc[ig][los])
-        # update
-        players_scores.iloc[ip][win] = score_win
-        players_scores.iloc[ip][los] = score_los
-        players_winrate.iloc[ip][win] = ((players_winrate.iloc[ip][win]*ig)
-                                         + 1) * 1/ip  # n/N -> (n+1)/(N+1)
-        if players_winrate.iloc[ip][los]:
-            players_winrate.iloc[ip][los] = players_winrate.iloc[ig][los] *\
-                ig/ip  # n/N -> n/(N+1)
-        else:
-            players_winrate.iloc[ip][los] = 0
+#         # compute score
+#         score_win, score_los = ygor.compute_elo(players_scores.iloc[ig][win],
+#                                                 players_scores.iloc[ig][los])
+#         # update
+#         players_scores.iloc[ip][win] = score_win
+#         players_scores.iloc[ip][los] = score_los
+#         players_winrate.iloc[ip][win] = ((players_winrate.iloc[ip][win]*ig)
+#                                          + 1) * 1/ip  # n/N -> (n+1)/(N+1)
+#         if players_winrate.iloc[ip][los]:
+#             players_winrate.iloc[ip][los] = players_winrate.iloc[ig][los] *\
+#                 ig/ip  # n/N -> n/(N+1)
+#         else:
+#             players_winrate.iloc[ip][los] = 0
 
-    # Plot scores
-    fig, ax2 = plt.subplots()
-    # ax1.plot(players_scores, '.')
-    # ax1.grid()
-    # ax1.set_xlabel('Number of games')
-    # ax1.set_ylabel('Score')
+#     # Plot scores
+#     fig, ax2 = plt.subplots()
+#     # ax1.plot(players_scores, '.')
+#     # ax1.grid()
+#     # ax1.set_xlabel('Number of games')
+#     # ax1.set_ylabel('Score')
 
-    # ax2 = ax1.twinx()  # instantiate a second axes that with the same x-axis
-    ax2.set_ylabel('Winrate')  # already handled xlabel ax1
-    ax2.set_xlabel('Number of games')
-    ax2.set_title('Players winrate over games')
+#     # ax2 = ax1.twinx()  # instantiate axes with the same x-axis
+#     ax2.set_ylabel('Winrate')  # already handled xlabel ax1
+#     ax2.set_xlabel('Number of games')
+#     ax2.set_title('Players winrate over games')
 
-    # ax2.tick_params(axis='y', labelcolor='g')
-    ax2.plot(players_winrate, '.:')
+#     # ax2.tick_params(axis='y', labelcolor='g')
+#     ax2.plot(players_winrate, '.:')
 
-    ax2.set_ylim(0, 1)
-    ax2.legend(list(players_scores.columns), loc='best')
-    ax2.grid()
+#     ax2.set_ylim(0, 1)
+#     ax2.legend(list(players_scores.columns), loc='best')
+#     ax2.grid()
 
-    return fig
+#     return fig
 
 
-def suggest_new_matchup(player1=None, player2=None):
-    all_decks = ygor.get_all_decks_ranked()
-    labels = all_decks.deck.tolist()
+# def suggest_new_matchup(player1=None, player2=None):
+#     all_decks = ygor.get_all_decks_ranked()
+#     labels = all_decks.deck.tolist()
 
-    winrate_map, game_is_impossible = compute_games_map()
-    game_is_possible = 1-game_is_impossible
-    matchup_undone = np.zeros(winrate_map.shape, dtype=int)
-    matchup_undone[np.isinf(winrate_map)] = 1
-    # matchup_undone[winrate_map>=0] = 0
+#     winrate_map, game_is_impossible = compute_games_map()
+#     game_is_possible = 1-game_is_impossible
+#     matchup_undone = np.zeros(winrate_map.shape, dtype=int)
+#     matchup_undone[np.isinf(winrate_map)] = 1
+#     # matchup_undone[winrate_map>=0] = 0
 
-    free_matchups = matchup_undone * game_is_possible
-    # show_map(free_matchups)
+#     free_matchups = matchup_undone * game_is_possible
+#     # show_map(free_matchups)
 
-    if player1 is None and player2 is None:
-        filter_by_player = np.ones(winrate_map.shape, dtype=int)
-    else:
-        filter_by_player = np.zeros(winrate_map.shape, dtype=int)
-        for i in range(0, len(winrate_map)):
-            deck1_owner = ygom.find_owner(labels[i])
-            for j in range(0, i):
-                deck2_owner = ygom.find_owner(labels[j])
-                if ((deck1_owner == player1 or
-                     deck1_owner == player2)
-                        and (deck2_owner == player1 or
-                             deck2_owner == player2)):
-                    filter_by_player[i, j] = 1
+#     if player1 is None and player2 is None:
+#         filter_by_player = np.ones(winrate_map.shape, dtype=int)
+#     else:
+#         filter_by_player = np.zeros(winrate_map.shape, dtype=int)
+#         for i in range(0, len(winrate_map)):
+#             deck1_owner = ygom.find_owner(labels[i])
+#             for j in range(0, i):
+#                 deck2_owner = ygom.find_owner(labels[j])
+#                 if ((deck1_owner == player1 or
+#                      deck1_owner == player2)
+#                         and (deck2_owner == player1 or
+#                              deck2_owner == player2)):
+#                     filter_by_player[i, j] = 1
 
-    # show_map(filter_by_player)
-    new_matchup_between = free_matchups * filter_by_player
-    new_matchup_between = new_matchup_between + new_matchup_between.T
-    show_map(new_matchup_between)
+#     # show_map(filter_by_player)
+#     new_matchup_between = free_matchups * filter_by_player
+#     new_matchup_between = new_matchup_between + new_matchup_between.T
+#     show_map(new_matchup_between)
 
 
 def export_examples():
