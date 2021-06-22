@@ -694,10 +694,11 @@ def suggest_new_matchup(player1=None, player2=None):
             deck1_owner = ygom.find_owner(labels[i])
             for j in range(0, i):
                 deck2_owner = ygom.find_owner(labels[j])
-                if ((deck1_owner == player1 or
-                     deck1_owner == player2)
-                        and (deck2_owner == player1 or
-                             deck2_owner == player2)):
+                # if ((deck1_owner == player1 or
+                #      deck1_owner == player2)
+                #         and (deck2_owner == player1 or
+                #              deck2_owner == player2)):
+                if {deck1_owner, deck2_owner} == {player1, player2}:
                     filter_by_player[i, j] = 1
 
     # show_map(filter_by_player)
