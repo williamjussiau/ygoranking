@@ -54,7 +54,7 @@ ygos.show_player_stats()
 ygos.export_examples()
 
 # 7. When opening a new session, you can add new decks, new games and visualize new results
-# Be careful to always recompute results based on registered games
+# Be careful to always recompute results based on registered games (step 5)
 ```
 
 
