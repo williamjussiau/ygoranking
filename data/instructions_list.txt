@@ -1,0 +1,73 @@
+# Club YGO 1
+add_player('Zouloux')
+add_player('Xari')
+
+add_deck('Yugi')
+add_deck('Joey')
+add_game_full(['Yugi','Zouloux'],['Joey','Xari'])
+
+add_deck('Neos')
+add_deck('MajuBan')
+add_game_full(['Neos','Xari'],['MajuBan','Zouloux'])
+
+add_deck('Gardiens')
+add_game_full(['Neos','Xari'],['Gardiens','Zouloux'])
+
+add_deck('Elfe')
+add_deck('Casino')
+add_game_full(['Elfe','Zouloux'],['Casino','Xari'])
+
+add_deck('Obelisk')
+add_game_full(['Obelisk','Zouloux'],['Casino','Xari'])
+
+add_deck('BetesCristallines')
+add_deck('Zombie')
+add_game_full(['Zombie','Zouloux'],['BetesCristallines','Xari'])
+add_game_full(['Zombie','Zouloux'],['BetesCristallines','Xari'])
+add_game_full(['Zombie','Zouloux'],['BetesCristallines','Xari'])
+add_game_full(['BetesCristallines','Xari'],['Zombie','Zouloux'])
+
+
+# Club YGO 2
+add_player('Soey')
+
+add_deck('Slime')
+add_deck('Benkei')
+add_game_full(['Benkei','Soey'], ['Slime','Zouloux'])
+
+add_deck('GardienDeLaPorte')
+add_game_full(['GardienDeLaPorte','Soey'], ['Slime','Zouloux'])
+
+add_deck('Rocher')
+add_game_full(['Rocher','Zouloux'], ['GardienDeLaPorte','Soey'])
+
+# game GOAT: Nephtys (Soey) VS ?
+
+add_deck('DragonLV')
+add_deck('InsectorHaga')
+add_game_full(['DragonLV','Zouloux'], ['InsectorHaga','Soey'])
+
+
+# Club YGO 3
+add_player('QC')
+
+add_deck('Dino')
+add_deck('Hero')
+add_game_full(['Dino','Zouloux'], ['Hero','QC'])
+add_game_full(['Dino','Zouloux'], ['Hero','QC'])
+
+add_deck('Gravekeeper')
+add_deck('YugiMVP')
+add_game_full(['YugiMVP','Zouloux'], ['Gravekeeper','QC'])
+add_game_full(['YugiMVP','Zouloux'], ['Gravekeeper','QC'])
+
+# game avec le deck de Yu***
+
+# Club YGO 5
+
+# Club YGO 4
+add_player('Adias')
+
+
+# Club YGO 6
+add_player('Rage')
