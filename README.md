@@ -9,10 +9,13 @@ So far, one may:
   - compute Elo and Glicko2 scores
   - visualize results on graphs 
  
-In TO-DO list:
-  - result=DRAW
-  - any proposition of statistic or graph that may be missing
-  - user-interface for easy access
+TO-DO list:
+  - short-term:
+    - result=DRAW
+    - assign_color_per_player() to take into account more than 3 players and assign colors semi-randomly
+  - long-term:
+    - user-interface for easy access
+    - any proposition of statistic or graph that may be missing
 
 Using this code, several used can be made:
   - collaborative: several players are playing against each other. Each player may own several decks, but the exact same deck cannot be shared between players. Games are registered and a ranking is made between decks (hence players).
