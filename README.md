@@ -1,13 +1,21 @@
 # ygoranking
 Ranking system for Yu-Gi-Oh! gaming with friends
 
-So far, available functionalities are:
-  - manage decks (essentially: add new deck with given owner)
-  - manage gaming history (add new game, delete last games)
+The basic functionality of the code is to register decks (name only), players (name only) and games played between decks, with a winner and a loser.
+
+So far, one may:
+  - manage decks (add new deck with given owner, delete deck)
+  - manage gaming history (add new game, delete n last games)
   - compute Elo and Glicko2 scores
   - visualize results on graphs 
  
-Still to be implemented: neat statistics & user-interface (everything has to be done on command line)
+In TO-DO list:
+  - any proposition of statistic or graph that may be missing
+  - user-interface for easy access
+
+Using this code, several used can be made:
+  - collaborative: several players are playing against each other. Each player may own several decks, but the exact same deck cannot be shared between players. Games are registered and a ranking is made between decks (hence players).
+  - self-analysis: a player enters their deck and every deck they expect to be encountering at tournaments. Whenever the player plays a game with a deck, they enter the result in the system. Then, they may show their performance against each deck of the meta as a ratio of win/lose.
 
 # Ratings used
 ## Elo rating
@@ -38,7 +46,7 @@ ygom.add_game('deck_name_1', 'deck_name_2') # player 1 won
 ygom.add_game('deck_name_2', 'deck_name_1') # player 2 won
 ygom.add_game('deck_name_1', 'deck_name_2') # player 1 won the BO3
 
-# 5. Compute scores relative to games at previous steps - not done by automatically
+# 5. Compute scores relative to games at previous steps - not done automatically
 ygor.compute_all_scores()
 
 # 6. Visualize results - functions generally start with 'show_'
