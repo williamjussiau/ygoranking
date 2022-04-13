@@ -10,6 +10,7 @@ So far, one may:
   - visualize results on graphs 
  
 In TO-DO list:
+  - result=DRAW
   - any proposition of statistic or graph that may be missing
   - user-interface for easy access
 
