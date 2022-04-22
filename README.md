@@ -17,9 +17,9 @@ TO-DO list:
     - user-interface for easy access
     - any proposition of statistic or graph that may be missing
 
-Using this code, several used can be made:
-  - collaborative: several players are playing against each other. Each player may own several decks, but the exact same deck cannot be shared between players. Games are registered and a ranking is made between decks (hence players).
-  - self-analysis: a player enters their deck and every deck they expect to be encountering at tournaments. Whenever the player plays a game with a deck, they enter the result in the system. Then, they may show their performance against each deck of the meta as a ratio of win/lose.
+The code was intended to be used in a collaborative way, i.e., several players playing against each other. Each player may own several decks, but the exact same deck cannot be shared between players. Games are registered, and a ranking is made between decks (hence players somehow).
+
+Note: it is also possible to use the code as a self-analysis tool against meta: a player enters their deck and every deck they expect to be encountering at tournaments. Whenever the player enounters a deck from the meta, they enter the result in the system. Then, the code may show their performance against each deck of the meta as a ratio of win/lose.
 
 # Ratings used
 ## Elo rating
